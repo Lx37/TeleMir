@@ -1,4 +1,4 @@
 TeleMir
 =======
 
-Pure Python EEG trasformation to cognitive ship performance
+Pure Python EEG acquisition and trasformation to cognitive ship performance
