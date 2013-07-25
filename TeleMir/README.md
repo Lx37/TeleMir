@@ -1,4 +1,0 @@
-TeleMir
-=======
-
-Generique code reusable
