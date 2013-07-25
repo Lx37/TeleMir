@@ -4,8 +4,11 @@
 
 """
 
+import TeleMir
+
 from pyacq import StreamHandler, Emotic
 from pyacq.gui import Oscilloscope, TimeFreq
+
 
 import msgpack
 
