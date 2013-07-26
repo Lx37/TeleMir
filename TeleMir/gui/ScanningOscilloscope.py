@@ -216,4 +216,6 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         elif e.key()==pg.QtCore.Qt.Key_Space:
             if len(self.channels)==1:
                 self.changeChannels([(self.channels[0]+1)%self.data.shape[0]])
-
+        #elif e.key()==pg.QtCore.Qt.Key_Space:
+            self.updateScale()
+                
