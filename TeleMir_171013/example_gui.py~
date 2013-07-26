@@ -6,7 +6,7 @@
 
 import TeleMir
 
-from pyacq import StreamHandler, EmotivMultiSignals
+from pyacq import StreamHandler, Emotiv
 from pyacq.gui import Oscilloscope, TimeFreq
 
 
@@ -22,7 +22,7 @@ def main():
     streamhandler = StreamHandler()
     
 
-    dev = EmotivMultiSignals(streamhandler = streamhandler)
+    dev = Emotiv(streamhandler = streamhandler)
     dev.configure(buffer_length = 1800)
     dev.initialize()
     dev.start()
