@@ -62,8 +62,6 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
                 brushes=self.scaledBrushes(pows,i)
             else:
                 brushes=None
-                
-            print brushes
 
                 #affichage
             p=self.addPlot(None)
