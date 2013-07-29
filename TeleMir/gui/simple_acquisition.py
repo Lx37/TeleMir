@@ -7,7 +7,7 @@
 Very simple acquisition with a fake multi signal device.
 
 """
-from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics
+from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics,freqBandsGraphics
 
 from pyacq import StreamHandler, FakeMultiSignals
 from pyqtgraph.Qt import QtGui, QtCore
@@ -26,9 +26,9 @@ def test1():
     dev = FakeMultiSignals(streamhandler = streamhandler)
     dev.configure( name = 'Test dev',
                                 nb_channel = 14,
-                                sampling_rate =1000.,
+                                sampling_rate =128.,
                                 buffer_length = 6.4,
-                                packet_size = 64,
+                                packet_size = 1,
                                 )
     dev.initialize()
     dev.start()
@@ -39,13 +39,13 @@ def test1():
     print np_array.shape # this should be (nb_channel x buffer_length*samplign_rate)
 
     #initialize plots
-    w1=SpectrumGraphics(dev.streams[0],3.,channels=range(14))
-    #w1 = ScanningOscilloscope(dev.streams[0],3.,channels=[3],title='Signal Brut')
+    w1 = freqBandsGraphics(dev.streams[0],2.,colorMode=True,channels=range(12))
+ #   w2 = SpectrumGraphics(dev.streams[0],2.,logMode=True,channels=range(2))
     #w2 = KurtosisGraphics(dev.streams[0],2.,channels=range(14),title='Kurtosis')
 
     #start plots
     w1.run()
-    #w2.run()
+   # w2.run()
     
     w1.showFullScreen()
     #When you close the window the fake device stop emmiting
