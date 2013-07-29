@@ -154,7 +154,6 @@ class SpectrumGraphics(pw.PyQtGraphicsWorker):
 
                 #enregistrement dans la pile de sauvegardes
             self.lastResults[i][self.posLastResult]=spectrum
-            self.posLastResult=(self.posLastResult+1)%self.stackLen
                 
             if self.colorMode:
                 #étalonnage du gradient de couleurs sur les valeurs du spectre
@@ -164,7 +163,8 @@ class SpectrumGraphics(pw.PyQtGraphicsWorker):
 
                 #mise à jour des graphes           
             self.barGraphs[i].updateHeights(spectrum,brushes)
-        
+         self.posLastResult=(self.posLastResult+1)%self.stackLen
+
     def adaptRange(self):
         for i in self.channels:
             maxS=np.max(self.lastResults[i])

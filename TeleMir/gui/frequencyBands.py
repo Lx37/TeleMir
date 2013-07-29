@@ -6,15 +6,17 @@ import pyqtgraph as pg
 import pyqtgraphWorker as pw    
 from scipy import fft
 import BarGraphItem as bg
+import random
 
 class freqBandsGraphics(pw.PyQtGraphicsWorker):
     def __init__(self,stream,interval_length,colorMode=True,channels=None,title=None,**kwargs):
         super(freqBandsGraphics,self).__init__(stream,interval_length,channels,title,**kwargs)
-
+        random.seed(5)
         self.time_length=interval_length
 
-        self.bands=np.array([[1,4],[4,8],[8,13],[13,30],[30,50],[12,16]])
-            			
+        self.bands=np.array([[1,4],[4,8],[8,13],[13,30],[30,45],[12,16]])
+        self.titles=['delta','theta','alpha','beta','gamma','mu']    			
+
             #frequence max en entier
         self.freqMax=np.amax(self.bands)
         self.nFreqMax=int(self.freqMax*interval_length)
@@ -24,7 +26,7 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
             self.nFreqMax = self.interval_length/2
                     
             #Pile contenant les dernières fft
-        self.stackLen=100
+        self.stackLen=10
         self.lastResults={}
         self.posLastResult=0
 
@@ -37,7 +39,24 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
         x0=self.bands[:,0]
         x1=self.bands[:,1]
 
-        self.barGraphs={}            
+        self.barGraphs={}
+
+            #Ajout des étiquettes correspondant aux noms des bandes de fréquence
+        p=self.addPlot(None)
+            #Effacer l'axe des abscisses
+        p.getAxis('bottom').setPen('000')
+        p.getAxis('left').setPen('000')
+        #mettre l'axe des abscisses à la bonne échelle
+        p.getAxis('bottom').setRange(0,self.freqMax)
+
+        for i in range(len(self.bands)):
+            label=pg.TextItem(self.titles[i],color='FFFD')
+            p.addItem(label)
+            label.setPos(sum(self.bands[i])/2./50.,0.5)
+
+        self.nextRow()
+
+            
         for i in self.channels:
                 #calcul des fft
             spectrum=np.array(abs(fft(self.data[i]))[1:self.nFreqMax+1])
@@ -65,7 +84,6 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
 
                 #affichage
             p=self.addPlot(None)
-               # p.getAxis('bottom').setLogMode(True)
             self.barGraphs[i]=bg.BarGraphItem(x0=x0,
                                               x1=x1,
                                               # width=width,
@@ -74,8 +92,10 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
                                               )
             
             p.addItem(self.barGraphs[i])
+            
             self.nextRow()
              
+
     def scaledBrushes(self,spectrum,chan):
             #étalonnage sur du gradient sur les valeurs du spectre
         self.sMax=np.amax(self.lastResults[chan])                
@@ -110,7 +130,6 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
 
                 #enregistrement dans la pile de sauvegardes
             self.lastResults[i][self.posLastResult]=pows
-            self.posLastResult=(self.posLastResult+1)%self.stackLen
                 
             if self.colorMode:
                 #étalonnage du gradient de couleurs sur les valeurs du spectre
@@ -120,7 +139,10 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
 
                 #mise à jour des graphes           
             self.barGraphs[i].updateHeights(pows,brushes)
-        
+
+        self.posLastResult=(self.posLastResult+1)%self.stackLen
+
+
     def adaptRange(self):
         for i in self.channels:
             maxS=np.max(self.lastResults[i])
