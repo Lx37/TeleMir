@@ -163,7 +163,7 @@ class SpectrumGraphics(pw.PyQtGraphicsWorker):
 
                 #mise à jour des graphes           
             self.barGraphs[i].updateHeights(spectrum,brushes)
-         self.posLastResult=(self.posLastResult+1)%self.stackLen
+        self.posLastResult=(self.posLastResult+1)%self.stackLen
 
     def adaptRange(self):
         for i in self.channels:
