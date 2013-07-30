@@ -39,13 +39,13 @@ def test1():
     print np_array.shape # this should be (nb_channel x buffer_length*samplign_rate)
 
     #initialize plots
-    w1 = freqBandsGraphics(dev.streams[0],2.,colorMode=True,channels=range(2))
-    #w1 = SpectrumGraphics(dev.streams[0],2.,logMode=True,channels=range(2))
+    w1 = ScanningOscilloscope(dev.streams[0],2.,channels=range(2))
+   # w2 = SpectrumGraphics(dev.streams[0],2.,logMode=True,channels=range(2))
     #w1 = KurtosisGraphics(dev.streams[0],2.,channels=range(4),title='Kurtosis')
 
     #start plots
     w1.run()
-   # w2.run()
+    #w2.run()
     
     w1.showFullScreen()
     #When you close the window the fake device stop emmiting
