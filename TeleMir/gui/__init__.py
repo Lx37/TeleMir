@@ -5,3 +5,4 @@ from .ScanningOscilloscope import Oscilloscope
 from .KurtosisGraphics import KurtosisGraphics
 from .SpectrumGraphics import SpectrumGraphics
 from .frequencyBands import freqBandsGraphics
+from .topoplot import Topoplot
