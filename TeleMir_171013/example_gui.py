@@ -4,7 +4,7 @@
 
 """
 
-from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics
+from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics
 
 from pyacq import StreamHandler, EmotivMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
@@ -29,7 +29,7 @@ def main():
     
     app = QtGui.QApplication([])
 
-    w1=ScanningOscilloscope(dev.streams[0],3.,channels=[0])
+    w1=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
   #  w2=KurtosisGraphics(dev.streams[0],3.,channels=range(2,8))
 
     w1.run()

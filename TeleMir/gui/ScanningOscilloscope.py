@@ -100,6 +100,8 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
     def __init__(self,stream,interval_length,channels=None,title=None,**kwargs):
         super(ScanningOscilloscope,self).__init__(stream,interval_length,channels,title,**kwargs)
         
+        self.time_length=interval_length
+
         #Choix du découpage en sous-courbes
         self.nbSegments=int((1000./self.period*2+3)*interval_length)
         self.segmentsLength=self.interval_length/self.nbSegments
@@ -107,7 +109,7 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         #initialisation du timer de rafraichissement de l'échelle
         self.scaleTimer=QtCore.QTimer()
         self.scaleTimer.timeout.connect(self.updateScale)
-        self.scaleTimer.setSingleShot(True)
+       # self.scaleTimer.setSingleShot(True)
 
     def initPlots(self):
 
@@ -156,7 +158,7 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         self.pos=self.init
 
         #lancement du timer de rafraichissement de l'échelle
-        self.scaleTimer.start(3000)
+        self.scaleTimer.start(self.time_length*1000)
 
     def updatePlots(self):
 
@@ -216,4 +218,6 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         elif e.key()==pg.QtCore.Qt.Key_Space:
             if len(self.channels)==1:
                 self.changeChannels([(self.channels[0]+1)%self.data.shape[0]])
-
+        #elif e.key()==pg.QtCore.Qt.Key_Space:
+            self.updateScale()
+                
