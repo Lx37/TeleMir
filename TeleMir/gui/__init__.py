@@ -3,3 +3,4 @@
 from .ScanningOscilloscope import ScanningOscilloscope 
 #from .ScanningOscilloscope import Oscilloscope 
 from .KurtosisGraphics import KurtosisGraphics
+from .topoplot import Topoplot
