@@ -6,6 +6,7 @@ import pyqtgraph as pg
 import zmq
 import msgpack
 from pyacq.gui.tools import RecvPosThread
+import time
 
 class GraphicsWorker:
     '''
@@ -55,7 +56,7 @@ class GraphicsWorker:
 
         #initialisation du timer de rafraichissement du graphe
         self.timer=QtCore.QTimer()   
-        self.timer.timeout.connect(self.update)
+        self.timer.timeout.connect(self.updateGW)
         
         #periode de rafraichissement de l'image, ms
         self.period=100
@@ -71,9 +72,10 @@ class GraphicsWorker:
     def updatePlots(self):
         raise NotImplementedError
         
-    def update(self):
+    def updateGW(self):
         #Réception de la position de la dernière information écrite
         t=self.threadPos.pos
+        #print t,' zone_mem ',self.zone_mem
         self.init=t%(self.half_size)+self.half_size
         #mise à jour de la fenêtre de lecture
         self.data=self.zone_mem[:,self.init-self.interval_length:self.init]
