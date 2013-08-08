@@ -15,6 +15,8 @@ class Oscilloscope(pw.PyQtGraphicsWorker):
     Affichage classique du signal, le point le plus récent est à droite. Les signaux sont 
     échellonés sur la fenêtre, l'amplitude relative des signaux est donc perdue. Dans 
     l'optique d'avoir une visualistion sexy du signal, les axes sont cachés.
+    Il est possible de modifier à la volée les canaux affichés. En particulier, lors de 
+    l'affichage d'un unique signal, la touche espace permet de passer au canal suivant.
     Les paramètres sont : le flux (stream) de positions sur lequel l'oscilloscope est
     branché, la largeur de la fenêtre affichée (interval_length) en seconde 
     (/!\ Des comportements étranges peuvent apparaître si la taille de cette fenêtre 
@@ -22,6 +24,10 @@ class Oscilloscope(pw.PyQtGraphicsWorker):
     L'oscilloscope peut afficher sélectivement certains canaux (channels).
     Toutes les options disponibles pour les GraphicsWidget de pyqtgraph devraient 
     aussi être disponibles ici.
+
+    /!\Classe buguée, elle rame sa mère dès qu'on affiche un peu trop de points
+    et je sais pas pourquoi, je vais chercher.
+    Lui preférer l'oscilloscope de pyacq.
     '''
 
     def __init__(self,stream,interval_length,channels=None,title=None,**kwargs):
@@ -49,20 +55,28 @@ class Oscilloscope(pw.PyQtGraphicsWorker):
         #Affichage des courbes
         for i in self.channels:
             self.c[i]=self.p.plot((self.data[i]-self.means[i])*self.gains[i]+self.channels.index(i)*1.1,pen=pg.mkPen('47FF14',width=1.3))
+            #Etiquette
+            if len(self.channels)==1:
+                label=pg.TextItem(html='<div style="text-align: center"><span style="color: #DDD;font-size: 24pt;">Channel %d</span>'%i, anchor=(0.7,2), border='w', fill=(200, 200, 200, 100))
+                self.p.addItem(label)
+                label.setPos(self.interval_length/2,self.channels.index(i)+0.5)
+
+
+        #Empêcher la mise à jour automatique des axes
         self.p.enableAutoRange('xy',False)
         
         #Effacer les axes
-        self.p.getAxis('bottom').setPen('000')
-        self.p.getAxis('left').setPen('000')
+        self.p.showAxis('bottom',False)
+        self.p.showAxis('left',False)
         
         #lancement du timer de rafraichissement de l'échelle
         self.scaleTimer.start(4000)
 
     def updatePlots(self):
         for i in self.channels:
-            self.c[i].setData((self.data[i]-self.means[i])*self.gains[i]+self.channels.index(i)*1.1)
-            #self.c[i].setData(self.data[i])
-            #pass
+            self.c[i].clear()
+            self.c[i].setData((self.data[i] - self.means[i]) * self.gains[i] + self.channels.index(i)*1.1)
+      
 
     #mise à jour de l'échelle
     def updateScale(self):
@@ -72,9 +86,27 @@ class Oscilloscope(pw.PyQtGraphicsWorker):
         #Calcul d'un gain pour chaque canal, pour que tous occupent le même espace
         self.gains={i:1.0/(np.max(self.data[i])-np.min(self.data[i])) for i in self.channels}
 
-        for i in self.channels:
-            self.c[i].setData((self.data[i]-self.means[i])*self.gains[i]+self.channels.index(i)*1.1)
-        self.p.autoRange()
+        self.updatePlots()
+
+        self.p.setRange(yRange=(-1,len(self.channels)))
+
+    #Change les channels affichés
+    def changeChannels(self,newChannels):
+        self.channels=newChannels
+        self.clear()
+        self.initPlots()
+        self.updateScale()
+        
+    #Gestion des évènements clavier
+    def keyPressEvent(self,e):
+        #sortir du plein écran
+        if e.key()==pg.QtCore.Qt.Key_Escape:
+            self.showNormal()
+        #changer de canal affiché (cas d'un canal unique)
+        elif e.key()==pg.QtCore.Qt.Key_Space:
+            if len(self.channels)==1:
+                self.changeChannels([(self.channels[0]+1)%self.data.shape[0]])
+
 
 class ScanningOscilloscope(pw.PyQtGraphicsWorker):
     '''
@@ -95,12 +127,14 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
     L'oscilloscope peut afficher sélectivement certains canaux (channels).
     Toutes les options disponibles pour les GraphicsWidget de pyqtgraph devraient 
     aussi être disponibles ici.
+
+    Encore à travailler : problème de la dérive lente, piste : filtrage 0,5 Hz
     '''
     
     def __init__(self,stream,interval_length,channels=None,title=None,**kwargs):
         super(ScanningOscilloscope,self).__init__(stream,interval_length,channels,title,**kwargs)
         
-        self.time_length=interval_length
+        self.interval_length_sec=interval_length
 
         #Choix du découpage en sous-courbes
         self.nbSegments=int((1000./self.period*2+3)*interval_length)
@@ -109,7 +143,7 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         #initialisation du timer de rafraichissement de l'échelle
         self.scaleTimer=QtCore.QTimer()
         self.scaleTimer.timeout.connect(self.updateScale)
-       # self.scaleTimer.setSingleShot(True)
+        self.scaleTimer.setSingleShot(True)
 
     def initPlots(self):
 
@@ -141,7 +175,11 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
 
             #Etiquette
             if len(self.channels)==1:
-                label=pg.TextItem(html='<div style="text-align: center"><span style="color: #DDD;font-size: 24pt;">Channel %d</span>'%i, anchor=(0.7,2), border='w', fill=(200, 200, 200, 100))
+                label=pg.TextItem(html='<div style="text-align: center"><span style="color: #DDD;font-size: 24pt;">Channel %d</span>'%i,
+                                  anchor=(0.7,2),
+                                  border='w',
+                                  fill=(200, 200, 200, 100),
+                                  )
                 self.p.addItem(label)
                 label.setPos(self.interval_length/2,self.channels.index(i)+0.5)
 
@@ -149,8 +187,8 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         self.p.enableAutoRange('xy',False)
 
         #Effacer les axes
-        self.p.getAxis('bottom').setPen('000')
-        self.p.getAxis('left').setPen('000')
+        self.p.showAxis('bottom',False)
+        self.p.showAxis('left',False)
 
         #Prochain segment à modifier
         self.currentSegment=0
@@ -158,9 +196,14 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         self.pos=self.init
 
         #lancement du timer de rafraichissement de l'échelle
-        self.scaleTimer.start(self.time_length*1000)
+        self.scaleTimer.start(self.interval_length_sec*1000)
 
     def updatePlots(self):
+               #remise à 0 des des offsets / Tentative d'exclusion de la dérive lente.
+#        self.means={i:np.mean(self.data[i]) for i in self.channels}
+
+        #Calcul d'un gain pour chaque canal, pour que tous occupent le même espace
+ #       self.gains={i:1.0/(np.max(self.data[i])-np.min(self.data[i])) for i in self.channels}
 
         #Choix du nombre de segments à mettre à jour (segments complets)
         for j in range((self.init-self.pos+self.half_size)%self.half_size/self.segmentsLength):
@@ -176,14 +219,16 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
 
             #Prochain segment à modifier
             self.currentSegment=(self.currentSegment+1)%self.nbSegments
-            self.pos=(self.pos+self.segmentsLength+self.segmentsLength)%(self.half_size)+self.half_size-self.segmentsLength
+            self.pos=(self.pos+self.segmentsLength+self.segmentsLength)%(self.half_size) + self.half_size - self.segmentsLength
 
 
         #Dessin du reste de la fenêtre, augmentée d'autant de zéros que nécessaire
         for i in self.channels:
            
             x=np.arange(self.currentSegment*self.segmentsLength-1 , (self.currentSegment+1)*self.segmentsLength)
-            y=np.concatenate(((self.zone_mem[i,self.pos-1 : self.init]-self.means[i])*self.gains[i],np.zeros(self.segmentsLength-self.init+self.pos)))+self.channels.index(i)*1.1
+            y=np.concatenate(((self.zone_mem[i,self.pos-1 : self.init]-self.means[i])*self.gains[i],
+                              np.zeros(self.segmentsLength-self.init+self.pos))
+                             ) + self.channels.index(i)*1.1
             
             self.c[i][self.currentSegment].clear()
             self.c[i][self.currentSegment].setData(x=x,y=y)
@@ -218,6 +263,6 @@ class ScanningOscilloscope(pw.PyQtGraphicsWorker):
         elif e.key()==pg.QtCore.Qt.Key_Space:
             if len(self.channels)==1:
                 self.changeChannels([(self.channels[0]+1)%self.data.shape[0]])
-        #elif e.key()==pg.QtCore.Qt.Key_Space:
-            self.updateScale()
+
+
                 

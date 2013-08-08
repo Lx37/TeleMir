@@ -148,17 +148,20 @@ class BarGraphItem(GraphicsObject):
         if self.picture is None:
             self.drawPicture()
         return QtCore.QRectF(self.picture.boundingRect())
-    
+
+
+    #Function to use in the same way as setData for CurveItem, making the graph dynamical.
+    #Not efficient at all, especially if you use the colors, to be enhanced.
     def updateHeights(self, height,brushes=None):
         if len(height)==len(self.opts['height']):
             self.opts['height']=height
         else:
-            raise Exception('The length of the array containing the datas should have not change (%d) (%d)'%(len(height),len(self.opts['height'])))
+            raise Exception('The length of the array containing the datas should',
+                            'have not change (%d) (%d)'%(len(height),len(self.opts['height'])))
         
         self.opts['brushes']=brushes
+        
         self.picture=None
 
         self.drawPicture()
 
-        # self.update()
-        # self.sigPlotChanged.emit(self)
