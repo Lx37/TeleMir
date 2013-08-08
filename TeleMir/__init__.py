@@ -10,3 +10,5 @@ Divide in 2 parts:
 
 
 """
+
+from .analyses import *
