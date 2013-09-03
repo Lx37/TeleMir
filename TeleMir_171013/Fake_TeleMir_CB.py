@@ -3,7 +3,7 @@
 Topoplot example
 """
 
-from pyacq import StreamHandler, EmotivMultiSignals
+from pyacq import StreamHandler, FakeMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
 from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics
 
@@ -21,22 +21,24 @@ def teleMir_CB():
     streamhandler = StreamHandler()
     
     # Configure and start
-    dev = EmotivMultiSignals(streamhandler = streamhandler)
-    dev.configure(buffer_length = 1800)   # doit être un multiple du packet size
+    dev = FakeMultiSignals(streamhandler = streamhandler)
+    dev.configure( name = 'Test dev',
+                                nb_channel = 14,
+                                sampling_rate =128.,
+                                buffer_length = 10.,
+                                packet_size = 1,
+                                )
     dev.initialize()
     dev.start()
     
     app = QtGui.QApplication([])
-    #w0=Topoplot(stream = dev.streams[0], type = 'topo')
-    #w0.show()
-    #w1.showFullScreen()
     
     # Impedances
-    w_imp=Topoplot(stream = dev.streams[1], type = 'imp')
+    w_imp=Topoplot(stream = dev.streams[0], type = 'imp')
     w_imp.show()
     
     # signal
-    w_oscilo=Oscilloscope(stream = dev.streams[2])
+    w_oscilo=Oscilloscope(stream = dev.streams[0])
     w_oscilo.show()
     
     # temps frequence
