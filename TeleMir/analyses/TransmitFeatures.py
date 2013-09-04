@@ -52,7 +52,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
 
     def initialize(self, stream_in):
         ## Feature stuff
-        self.feature_names = ['pAlphaO12','pBetaF34','DeltaMean','ThetaMean','BetaMean', 'MuMean','meanEntropy','meanKurto', 'corrcoef']
+        self.feature_names = ['pAlphaO12','pBetaF34','DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean','meanKurto']
         self.feature_indexes = np.arange(self.nb_feature)
         self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','FC3'] 
         self.channel_indexes = range(self.nb_channel) 
@@ -60,7 +60,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.extractor = GetFeatures.GetFeatures()
         
         ## OSC socket
-        self.oscIP = '127.0.0.1'
+        self.oscIP = '194.167.217.90'
         self.oscPort = 9001
         self.oscClient = OSC.OSCClient()
         self.oscMsg = OSC.OSCMessage() 

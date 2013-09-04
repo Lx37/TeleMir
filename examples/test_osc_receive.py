@@ -13,7 +13,7 @@ import OSC
 import threading
 
 #------OSC Server-------------------------------------#
-receive_address = '127.0.0.1', 9001
+receive_address = '194.167.217.90', 9001
 
 # OSC Server. there are three different types of server. 
 s = OSC.ThreadingOSCServer(receive_address)
