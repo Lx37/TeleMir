@@ -22,6 +22,7 @@ import multiprocessing as mp
 import zmq
 import msgpack
 import time
+import OSC
 
 class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
     def __init__(self,  stream = None, parent = None, **kargs):
@@ -57,6 +58,14 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.channel_indexes = range(self.nb_channel) 
         
         self.extractor = GetFeatures.GetFeatures()
+        
+        ## OSC socket
+        self.oscIP = '127.0.0.1'
+        self.oscPort = 9001
+        self.oscClient = OSC.OSCClient()
+        self.oscMsg = OSC.OSCMessage() 
+        self.oscMsg .setAddress("/EEGfeat") 
+        
         
         ## Stream In 
         self.stream_in = stream_in
@@ -171,17 +180,33 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         
         self.socket_out.send(msgpack.dumps(self.abs_pos))
         
+        #send OSC
+        self.sendOSC(features)
+        
         t_out = time.time()
         
         ## Simulate sample rate out
-        t_wait = 1/self.sr_out - (t_out - t_in)
+        #t_wait = 1/self.sr_out - (t_out - t_in)
         #print 't wait :', t_wait
-        if t_wait > 0:
-            time.sleep(t_wait)
-        else:
-            print 'Output stream sampling rate too fast for calculation'
-            self.stop()
+        #if t_wait > 0:
+        #   time.sleep(t_wait)
+        #else:
+        #   print 'Output stream sampling rate too fast for calculation'
+            #self.stop()
+        time.sleep(1/self.sr_out)
 
+    def sendOSC(self,features):
+        
+        self.oscMsg.append(features)
+        self.oscClient.sendto(self.oscMsg, (self.oscIP, self.oscPort))
+        self.oscMsg.clearData()
+        
+        #try:
+        #   self.oscClient.sendto(message, (self.oscIP, self.oscPort))
+        #except:
+        #   print 'Connection refused'
+        #pass
+        
  
 
 class SendPosThread(QtCore.QThread):

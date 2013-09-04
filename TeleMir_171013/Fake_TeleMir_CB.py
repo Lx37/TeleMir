@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Topoplot example
+TeleMir developpement version with fake acquisition device
 """
 
 from pyacq import StreamHandler, FakeMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
 from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics
+from TeleMir.analyses import TransmitFeatures
 
 import msgpack
 #~ import gevent
@@ -31,6 +32,19 @@ def teleMir_CB():
     dev.initialize()
     dev.start()
     
+     ## Configure and start output stream (for extracted feature)
+    fout = TransmitFeatures(streamhandler = streamhandler)
+    fout.configure( name = 'Test fout',
+                                nb_channel = 14, # np.array([1:5])
+                                nb_feature = 9,
+                                nb_pts = 128,
+                                sampling_rate =10.,
+                                buffer_length = 10.,
+                                packet_size = 1,
+                                )
+    fout.initialize(stream_in = dev.streams[0]) 
+    fout.start()
+    
     app = QtGui.QApplication([])
     
     # Impedances
@@ -53,9 +67,15 @@ def teleMir_CB():
     w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
     w_sp.run()  
     
+    w_feat=Oscilloscope(stream = fout.streams[0])
+    w_feat.show()
+       
+    
     app.exec_()
     
     # Stope and release the device
+    fout.stop()
+    fout.close()  
     dev.stop()
     dev.close()
 
