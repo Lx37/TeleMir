@@ -52,9 +52,9 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
 
     def initialize(self, stream_in):
         ## Feature stuff
-        self.feature_names = ['pAlphaO12','pBetaF34','DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean','meanKurto']
+        self.feature_names = ['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'pDeltaP7P8', 'pThetaAF34', 'pAlphaO12', 'pBetaF34', 'pGammaFC56', 'pMuT78', 'meanKurto','meanKurto']
         self.feature_indexes = np.arange(self.nb_feature)
-        self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','FC3'] 
+        self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','AF3'] 
         self.channel_indexes = range(self.nb_channel) 
         
         self.extractor = GetFeatures.GetFeatures()

@@ -36,7 +36,7 @@ def teleMir_CB():
     fout = TransmitFeatures(streamhandler = streamhandler)
     fout.configure( name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 9,
+                                nb_feature = 13,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,

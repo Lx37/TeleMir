@@ -12,7 +12,7 @@ first version by Lx37
 import numpy as np
 import scipy as sc
 import time
-
+import pyeeg
 
 class GetFeatures():
     def __init__(self, name = 'test'):
@@ -20,10 +20,10 @@ class GetFeatures():
         self.name = name
         self.nb_features = 9
         self.features = np.zeros((self.nb_features,1),dtype=np.float)
-        self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','FC3'] 
+        self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','AF3'] 
         self.nb_chan = 14
         self.channels = np.arange(self.nb_chan)
-        #self.feature_names = ['pAlphaO12','pBetaF34','DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean','meanKurto']
+        #self.feature_names =['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'pDeltaP7P8', 'pThetaAF34', 'pAlphaO12', 'pBetaF34', 'pGammaFC56', 'pMuT78', 'meanKurto','meanKurto']
         
         self.interval_length_sec = 1
         self.interval_length = 256
@@ -51,8 +51,12 @@ class GetFeatures():
         #fft
         self.getFeat(data)
         
+        pDeltaP7P8 = (self.pows[3,0] + self.pows[8,0])/2
+        pThetaAF34 = (self.pows[9,1] + self.pows[13,1])/2
         pAlphaO12 = (self.pows[11,2] + self.pows[12,2])/2
         pBetaF34 = (self.pows[0,3] + self.pows[1,3])/2
+        pGammaFC56 = (self.pows[4,4] + self.pows[9,4])/2
+        pMuT78 = (self.pows[7,5] + self.pows[11,5])/2
         
         bandsAv = np.average(self.pows, axis = 0)
         
@@ -60,9 +64,9 @@ class GetFeatures():
         
         meanKurto = np.average(self.kurtos, axis = 0)
         
-        #features = [pAlphaO12, pBetaF34, bandsAv[0], bandsAv[1], bandsAv[2], bandsAv[3] , bandsAv[4], bandsAv[5], meanKurto]
+        #features = ['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'pDeltaP7P8', 'pThetaAF34', 'pAlphaO12', 'pBetaF34', 'pGammaFC56', 'pMuT78', 'meanKurto','meanKurto']
         #print features
-        features = np.array([pAlphaO12, pBetaF34, bandsAv[0], bandsAv[1], bandsAv[2], bandsAv[3] , bandsAv[4], bandsAv[5], meanKurto ])
+        features = np.array([bandsAv[0], bandsAv[1], bandsAv[2], bandsAv[3] , bandsAv[4], bandsAv[5], pDeltaP7P8, pThetaAF34, pAlphaO12, pBetaF34, pGammaFC56, pMuT78, meanKurto])
     
         return features
     
@@ -78,8 +82,7 @@ class GetFeatures():
             self.kurtos[i]=sc.stats.kurtosis(data[i])
             
             # Entropy
-           #self.ApEntropy = pyEEG.ap_entropy()
-            #print self.ApEntropy
+            #self.ApEntropy = pyeeg.ap_entropy(data[i],1,1)
         
     #Calcul des puissance des bandes
     def bands_power(self,spectrum):
@@ -105,28 +108,6 @@ class GetFeatures():
                 pows.append(mean)
         return pows
         
-        
-        ## From PyEEG
-        
-    def samp_entropy(X, M, R):
-
-        N = len(X)
-        Em = embed_seq(X, 1, M)	
-        Emp = embed_seq(X, 1, M + 1)
-        Cm, Cmp = zeros(N - M - 1) + 1e-100, zeros(N - M - 1) + 1e-100
-        # in case there is 0 after counting. Log(0) is undefined.
-        
-        for i in xrange(0, N - M):
-            for j in xrange(i + 1, N - M): # no self-match
-            #   if max(abs(Em[i]-Em[j])) <= R:  # v 0.01_b_r1 
-                if in_range(Em[i], Em[j], R):
-                    Cm[i] += 1
-            #if max(abs(Emp[i] - Emp[j])) <= R: # v 0.01_b_r1
-                    if abs(Emp[i][-1] - Emp[j][-1]) <= R: # check last one
-                        Cmp[i] += 1
-                        
-        Samp_En = log(sum(Cm)/sum(Cmp))
-        return Samp_En
         
         
         
