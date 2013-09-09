@@ -52,20 +52,20 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
 
     def initialize(self, stream_in):
         ## Feature stuff
-        self.feature_names = ['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'pDeltaP7P8', 'pThetaAF34', 'pAlphaO12', 'pBetaF34', 'pGammaFC56', 'pMuT78', 'meanKurto','meanKurto']
+        #self.feature_names = ['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'pDeltaP7P8', 'pThetaAF34', 'pAlphaO12', 'pBetaF34', 'pGammaFC56', 'pMuT78', 'meanKurto','meanKurto']
+        self.feature_names = ['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'DeltaMean2','ThetaMean2','AlphaMean2','BetaMean2','GammaMean2','MuMean2','meanKurto']
         self.feature_indexes = np.arange(self.nb_feature)
         self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','AF3'] 
         self.channel_indexes = range(self.nb_channel) 
         
-        self.extractor = GetFeatures.GetFeatures()
+        self.extractor = GetFeatures.GetFeatures(stream_in)
         
         ## OSC socket
-        self.oscIP = '194.167.217.90'
+        self.oscIP = '194.167.217.246'
         self.oscPort = 9001
         self.oscClient = OSC.OSCClient()
         self.oscMsg = OSC.OSCMessage() 
         self.oscMsg .setAddress("/EEGfeat") 
-        
         
         ## Stream In 
         self.stream_in = stream_in
@@ -155,15 +155,16 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         t_in = time.time()
         
         ## Read what's comin'
-        pos_in = self.thread_pos.pos
+        pos_in = self.thread_pos.pos  # pos absolue
         half_size_in = self.half_size_in
-        head = pos_in%half_size_in
+        head = pos_in%half_size_in      # pos relative
         
         data = self.np_arr_in[:, head+half_size_in-self.nb_pts : head+half_size_in] 
         #print 'head : ', head
         
         ## Compute features
-        features = self.extractor.extract_TCL(data)
+        #features = self.extractor.extract_TCL(data)
+        features = self.extractor.extract_TCL(head)
         
         ## Write out and send position
         pos2 = self.pos2

@@ -48,24 +48,24 @@ def teleMir_CB():
     app = QtGui.QApplication([])
     
     # Impedances
-    w_imp=Topoplot(stream = dev.streams[0], type = 'imp')
-    w_imp.show()
+    #w_imp=Topoplot(stream = dev.streams[0], type = 'imp')
+    #w_imp.show()
     
     # signal
-    w_oscilo=Oscilloscope(stream = dev.streams[0])
-    w_oscilo.show()
+    #w_oscilo=Oscilloscope(stream = dev.streams[0])
+    #w_oscilo.show()
     
     # temps frequence
-    w_Tf=TimeFreq(stream = dev.streams[0])
-    w_Tf.show()  
+    #w_Tf=TimeFreq(stream = dev.streams[0])
+    #w_Tf.show()  
     
     # kurtosis 
-    w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
-    w_ku.run()  
+    #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
+    #w_ku.run()  
     
     # freqbands 
-    w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
-    w_sp.run()  
+    #w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
+    #w_sp.run()  
     
     w_feat=Oscilloscope(stream = fout.streams[0])
     w_feat.show()

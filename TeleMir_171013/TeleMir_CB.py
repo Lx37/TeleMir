@@ -16,6 +16,7 @@ from PyQt4 import QtCore,QtGui
 import zmq
 import msgpack
 import time
+from TeleMir.analyses import TransmitFeatures
 
 def teleMir_CB():
     streamhandler = StreamHandler()
@@ -26,34 +27,56 @@ def teleMir_CB():
     dev.initialize()
     dev.start()
     
+     ## Configure and start output stream (for extracted feature)
+    fout = TransmitFeatures(streamhandler = streamhandler)
+    fout.configure( name = 'Test fout',
+                                nb_channel = 14, # np.array([1:5])
+                                nb_feature = 13,
+                                nb_pts = 128,
+                                sampling_rate =10.,
+                                buffer_length = 10.,
+                                packet_size = 1,
+                                )
+    fout.initialize(stream_in = dev.streams[0]) 
+    fout.start()
+    
+    
     app = QtGui.QApplication([])
     #w0=Topoplot(stream = dev.streams[0], type = 'topo')
     #w0.show()
-    #w1.showFullScreen()
     
     # Impedances
-    w_imp=Topoplot(stream = dev.streams[1], type = 'imp')
-    w_imp.show()
+    #w_imp=Topoplot(stream = dev.streams[1], type = 'imp')
+    #w_imp.show()
     
     # signal
-    w_oscilo=Oscilloscope(stream = dev.streams[2])
-    w_oscilo.show()
+    #w_oscilo=Oscilloscope(stream = dev.streams[0])
+    #w_oscilo.show()
     
     # temps frequence
-    w_Tf=TimeFreq(stream = dev.streams[0])
-    w_Tf.show()  
+    #w_Tf=TimeFreq(stream = dev.streams[0])
+    #w_Tf.show()  
     
     # kurtosis 
-    w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
-    w_ku.run()  
+    #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
+    #w_ku.run()  
     
     # freqbands 
-    w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
-    w_sp.run()  
+    #w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
+    #w_sp.run()  
+        
+    w_feat1=Oscilloscope(stream = fout.streams[0])
+    w_feat1.show()
+    w_feat2=Oscilloscope(stream = fout.streams[0])
+    w_feat2.show()
+    w_feat3=Oscilloscope(stream = fout.streams[0])
+    w_feat3.show()
     
     app.exec_()
     
     # Stope and release the device
+    fout.stop()
+    fout.close()  
     dev.stop()
     dev.close()
 
