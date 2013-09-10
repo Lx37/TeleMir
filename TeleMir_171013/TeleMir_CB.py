@@ -31,7 +31,7 @@ def teleMir_CB():
     fout = TransmitFeatures(streamhandler = streamhandler)
     fout.configure( name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 13,
+                                nb_feature = 21,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,
@@ -46,24 +46,24 @@ def teleMir_CB():
     #w0.show()
     
     # Impedances
-    #w_imp=Topoplot(stream = dev.streams[1], type = 'imp')
-    #w_imp.show()
+    w_imp=Topoplot(stream = dev.streams[1], type = 'imp')
+    w_imp.show()
     
     # signal
-    #w_oscilo=Oscilloscope(stream = dev.streams[0])
-    #w_oscilo.show()
+    w_oscilo=Oscilloscope(stream = dev.streams[0])
+    w_oscilo.show()
     
     # temps frequence
-    #w_Tf=TimeFreq(stream = dev.streams[0])
-    #w_Tf.show()  
+    w_Tf=TimeFreq(stream = dev.streams[0])
+    w_Tf.show()  
     
     # kurtosis 
-    #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
-    #w_ku.run()  
+    w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
+    w_ku.run()  
     
     # freqbands 
-    #w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
-    #w_sp.run()  
+    w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
+    w_sp.run()  
         
     w_feat1=Oscilloscope(stream = fout.streams[0])
     w_feat1.show()

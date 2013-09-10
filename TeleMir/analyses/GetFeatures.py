@@ -13,6 +13,7 @@ import numpy as np
 import scipy as sc
 import time
 import pyeeg
+from pyentropy import DiscreteSystem
 
 class GetFeatures():
     def __init__(self,stream_in, name = 'test'):
@@ -46,8 +47,8 @@ class GetFeatures():
         self.pows = np.zeros((self.nb_chan,self.nb_bands), dtype = np.float)
         
         # différentes tailles de fenetre en fonction des bandes  
-        ## TODO : automatiser ce calcul ?
-        self.band_time_size = [5,1.5,1,0.5,0.25,0.75]  ## Calculé par rapport aux frequences moy de chaque bande pour avoir 10 cycles et que ça tombe juste / Fe
+        ## TODO : automatiser ce calcul ?  pourquoi en diminuant la taille de la fenetre en dessous de 1s on augmente la puissance dans les bandes de hts freq ??
+        self.band_time_size = [5,1.5,1,1,1,1]#0.5,0.25,0.75]  ## Calculé par rapport aux frequences moy de chaque bande pour avoir 10 cycles et que ça tombe juste / Fe
         self.pows2 = np.zeros((self.nb_chan,self.nb_bands), dtype = np.float)
         
         print 'self.nFreqMax', self.nFreqMax 
@@ -59,26 +60,57 @@ class GetFeatures():
         #Kurto
         self.kurtos = np.zeros((self.nb_chan), dtype = np.float)
         
+        #Entrpy
+        self.entropy = np.zeros((self.nb_chan,self.nb_chan), dtype = np.float)
+        
+        #Moyennes glissantes et cumulées
+        self.alpha_cumul = []
+        self.Xsmooth = 10
+        self.Xsmooth2 = 50
+        
     def extract_TCL(self, data):
         
         #fft
         self.getFeat(data)
+        bandsAv = np.average(self.pows, axis = 0)
+        bandsAv2 = np.average(self.pows2, axis = 0)
+        total_power = np.average(bandsAv2, axis=0)
         
         #pDeltaP7P8 = (self.pows[3,0] + self.pows[8,0])/2
-        #pThetaAF34 = (self.pows[9,1] + self.pows[13,1])/2
-        #pAlphaO12 = (self.pows[11,2] + self.pows[12,2])/2
-        #pBetaF34 = (self.pows[0,3] + self.pows[1,3])/2
+        pThetaAF34F34 = (self.pows2[9,1] + self.pows2[13,1] + self.pows2[0,1] + self.pows2[1,1])/2
+        pAlphaO12 = (self.pows2[11,2] + self.pows2[12,2])/2
+        pBetaF34 = (self.pows2[0,3] + self.pows2[1,3])/2
         #pGammaFC56 = (self.pows[4,4] + self.pows[9,4])/2
         #pMuT78 = (self.pows[7,5] + self.pows[11,5])/2
         
-        bandsAv = np.average(self.pows, axis = 0)
-        bandsAv2 = np.average(self.pows2, axis = 0)
+        self.alpha_cumul.append(bandsAv2[2])
+        alpha_cumul = np.sum(self.alpha_cumul)
         
+        if len(self.alpha_cumul) > self.Xsmooth:
+            alpha_smooth = np.average(self.alpha_cumul[-self.Xsmooth:])
+        else:
+            alpha_smooth = np.average(self.alpha_cumul)
+        
+        if len(self.alpha_cumul) > self.Xsmooth2:
+            alpha_smooth2 = np.average(self.alpha_cumul[-self.Xsmooth2:])
+        else:
+            alpha_smooth2 = np.average(self.alpha_cumul)
+        
+        # Ratios
+        R1 = (bandsAv2[0]*bandsAv2[2]) / (bandsAv2[3]*bandsAv2[4])  #delta.alpha / beta.gamma
+        R2 = (bandsAv2[1]*bandsAv2[1]) / (bandsAv2[3]*bandsAv2[4]) # theta ² / beta.gamma
+        R3 = (bandsAv2[1] + bandsAv2[2] + bandsAv2[3]) / total_power # (theta + alpha + beta)/ total power
+        R5 = bandsAv2[2] * bandsAv2[1] # alpha.theta
+        R6 = bandsAv2[1] / bandsAv2[0] #theta / delta
+        R7 = (bandsAv2[1] + bandsAv2[2]) / bandsAv2[0] #(theta + alpha) / delta
+        R8 = (bandsAv2[0] + bandsAv2[2]) / (bandsAv2[0]*bandsAv2[0]) #(delta + alpha) / delta²
+        R9 = (bandsAv2[0] + bandsAv2[2] + bandsAv2[3]) / (bandsAv2[0]*bandsAv2[0]*bandsAv2[0]) #(delta + alpha) / delta³
         
         meanKurto = np.average(self.kurtos, axis = 0)
         
-        features = np.array([bandsAv[0], bandsAv[1], bandsAv[2], bandsAv[3] , bandsAv[4], bandsAv[5], bandsAv2[0], bandsAv2[1], bandsAv2[2], bandsAv2[3],bandsAv2[4], bandsAv2[5], meanKurto])
-    
+        #features = np.array([bandsAv[0], bandsAv[1], bandsAv[2], bandsAv[3] , bandsAv[4], bandsAv[5], bandsAv2[0], bandsAv2[1], bandsAv2[2], bandsAv2[3],bandsAv2[4], bandsAv2[5]])
+        features = np.array([bandsAv2[0], bandsAv2[1], bandsAv2[2], bandsAv2[3],bandsAv2[4], bandsAv2[5], pAlphaO12, alpha_cumul, alpha_smooth,alpha_smooth2, pThetaAF34F34, pBetaF34, R1, R2, R3, R5, R6, R7, R8, R9,  meanKurto])
+
         return features
     
     def getFeat(self,head):
@@ -96,7 +128,7 @@ class GetFeatures():
         for i in self.channels:  # For each channel
             j=0
             for bd in self.band_time_size:
-                data_band = self.np_arr_in[i, head+self.half_size_in- self.nb_pts*bd: head+self.half_size_in]
+                data_band = self.np_arr_in[i, head+self.half_size_in- (self.nb_pts*bd): head+self.half_size_in]
                 #fft
                 spectrum_band = np.array(abs(sc.fft(data_band))[1:self.nFreqMax+1])
                 spectrum_band = np.average(spectrum_band[self.bands[j][0]:self.bands[j][1]], axis = 0)  # ! Borne Sup non comprise !
@@ -126,7 +158,20 @@ class GetFeatures():
             # Kurtosis
             self.kurtos[i]=sc.stats.kurtosis(data[i])
             
-            # Entropy
+            #Entropy
+            #if i!=self.channels.length
+             #   for k=i+1:self.channels.length:
+
+            #~ for k in self.channels:
+                #~ max_i = max(data[i,:].astype(int)) +1
+                #~ max_k = max(data[k,:].astype(int)) +1
+                #~ print data[i,:].astype(int)
+                #~ print max_i
+                #~ print data[k,:].astype(int)
+                #~ print max_k
+                #~ s = DiscreteSystem(data[i,:].astype(int), (1,max_i), data[k,:].astype(int), (1,max_k))
+                #~ s.calculate_entropies(method='pt', calc=['HX', 'HXY'])
+                #~ self.entropy[i,k] = s.I()
             #self.ApEntropy = pyeeg.ap_entropy(data[i],1,1)
         
     #Calcul des puissance des bandes
