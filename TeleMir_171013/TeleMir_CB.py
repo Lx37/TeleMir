@@ -23,13 +23,14 @@ def teleMir_CB():
     
     # Configure and start
     dev = EmotivMultiSignals(streamhandler = streamhandler)
-    dev.configure(buffer_length = 1800)   # doit être un multiple du packet size
+    dev.configure(buffer_length = 1800, # doit être un multiple du packet size
+                                device_path = '',)
     dev.initialize()
     dev.start()
     
      ## Configure and start output stream (for extracted feature)
     fout = TransmitFeatures(streamhandler = streamhandler)
-    fout.configure( name = 'Test fout',
+    fout.configure(# name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
                                 nb_feature = 21,
                                 nb_pts = 128,
@@ -46,7 +47,7 @@ def teleMir_CB():
     #w0.show()
     
     # Impedances
-    w_imp=Topoplot(stream = dev.streams[1], type = 'imp')
+    w_imp=Topoplot(stream = dev.streams[1], type_Topo = 'imp')
     w_imp.show()
     
     # signal
