@@ -90,11 +90,12 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         l = int(self.sampling_rate*self.buffer_length)
         self.buffer_length = (l - l%self.packet_size)/self.sampling_rate
         
-        self.stream_out  = self.streamhandler.new_signals_stream(name = self.name+' Digit', sampling_rate = self.sampling_rate,
+        self.stream_out  = self.streamhandler.new_AnalogSignalSharedMemStream(name = self.name, sampling_rate = self.sampling_rate,
                                                 nb_channel = self.nb_feature, buffer_length = self.buffer_length,
                                                 packet_size = self.packet_size, dtype = np.float64,
                                                 channel_names = self.feature_names, channel_indexes = self.feature_indexes,            
                                                 )
+        
         arr_size = self.stream_out['shared_array'].shape[1]
         assert (arr_size/2)%self.packet_size ==0, 'buffer should be a multilple of pcket_size {}/2 {}'.format(arr_size, self.packet_size)
         
@@ -132,6 +133,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.last_head2 = self.last_head
         print 'first last head : ', self.last_head 
         
+        #self.thread_send.start()
         self.thread_copy.start()
         
         print 'Transmition Started:', self.name
@@ -208,6 +210,45 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         #   print 'Connection refused'
         #pass
         
+      ## For simple stream transmetter
+    
+    def simple_copy_and_transmit(self):
+        
+        t_in = time.time()
+        pos = self.thread_pos.pos
+        half = self.half_size_in
+        head = pos%half
+        #head2 = pos%(half+1)
+        print 'last head: ', self.last_head, ' head: ', head 
+        
+        #if self.last_head != head:
+        # Copy data
+        #self.np_arr_out[:,self.last_head2:head2] = self.np_arr_in[:,self.last_head+half:head+half] 
+        self.np_arr_out[:,self.last_head:head+half] = self.np_arr_in[:,self.last_head:head+half] 
+        #self.np_arr_out[:,self.last_head2+half:head2+half] = self.np_arr_in[:,self.last_head+half:head+half]
+        
+        self.socket_out.send(msgpack.dumps(pos))
+        
+        ## Debug mode. use head-1 instead head caus' send pos is out of the real data written (numpy way to use tables)
+        #print 'Value write on pos ', head-1, ' array in: ', self.np_arr_in[1,head-1], ' array out: ', self.np_arr_out[1,head-1]
+        #if self.np_arr_in[1,head-1] != self.np_arr_out[1,head-1]:
+        #    print 'Error writing array out pos = ', pos
+        
+        self.last_head = head
+        #self.last_head2 = head2
+        t_out = time.time()
+        
+        t_wait = 1/self.sr_out - (t_out - t_in)
+        #print 't wait :', t_wait
+        if t_wait > 0:
+            time.sleep(t_wait)
+           # print 'sleep'
+        else:
+           # print 'Output stream sampling rate too fast for calculation'
+            self.stop()
+        #else:
+             #get some rest ??
+        
  
 
 class SendPosThread(QtCore.QThread):
@@ -221,8 +262,6 @@ class SendPosThread(QtCore.QThread):
         while self.running:
             self.fonction()
 
-    
-    
     
     
     

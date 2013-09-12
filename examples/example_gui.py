@@ -6,7 +6,7 @@
 
 from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics
 
-from pyacq import StreamHandler, EmotivMultiSignals
+from pyacq import StreamHandler, FakeMultiSignals, EmotivMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
 
 
@@ -22,8 +22,19 @@ def main():
     streamhandler = StreamHandler()
     
 
-    dev = EmotivMultiSignals(streamhandler = streamhandler)
-    dev.configure(buffer_length = 1800)
+    #dev = EmotivMultiSignals(streamhandler = streamhandler)
+    #dev.configure(buffer_length = 1800)
+    
+    
+    # Configure and start
+    dev = FakeMultiSignals(streamhandler = streamhandler)
+    dev.configure( #name = 'Test dev',
+                                nb_channel = 14,
+                                sampling_rate =128.,
+                                buffer_length = 10.,
+                                packet_size = 1,
+                                )
+    
     dev.initialize()
     dev.start()
     

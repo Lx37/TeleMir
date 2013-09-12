@@ -21,7 +21,7 @@ def test1():
     
     # Configure and start
     dev = FakeMultiSignals(streamhandler = streamhandler)
-    dev.configure( name = 'Test dev',
+    dev.configure( #name = 'Test dev',
                                 nb_channel = 14,
                                 sampling_rate =128.,
                                 buffer_length = 10.,
@@ -31,7 +31,7 @@ def test1():
     dev.start()
     
     app = QtGui.QApplication([])
-    w1=Topoplot(stream = dev.streams[0], type ='fakeAc')
+    w1=Topoplot(stream = dev.streams[0], type_Topo ='fakeAc')
     w1.show()
     #w1.showFullScreen()
     

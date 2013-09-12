@@ -16,7 +16,7 @@ def run_test():
     
      ## Configure and start acquisition stream
     dev = FakeMultiSignals(streamhandler = streamhandler)
-    dev.configure( name = 'Test dev',
+    dev.configure( #name = 'Test dev',
                                 nb_channel = 14,
                                 sampling_rate =128.,
                                 buffer_length = 10.,
@@ -27,9 +27,9 @@ def run_test():
     
     ## Configure and start output stream (for extracted feature)
     fout = TransmitFeatures(streamhandler = streamhandler)
-    fout.configure( name = 'Test fout',
+    fout.configure( #name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 9,
+                                nb_feature = 21,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,

@@ -6,6 +6,7 @@ TeleMir developpement version with fake acquisition device
 from pyacq import StreamHandler, FakeMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
 from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics
+from TeleMir.gui import ScanningOscilloscope,SpectrumGraphics
 from TeleMir.analyses import TransmitFeatures
 
 import msgpack
@@ -23,7 +24,7 @@ def teleMir_CB():
     
     # Configure and start
     dev = FakeMultiSignals(streamhandler = streamhandler)
-    dev.configure( name = 'Test dev',
+    dev.configure( #name = 'Test dev',
                                 nb_channel = 14,
                                 sampling_rate =128.,
                                 buffer_length = 10.,
@@ -34,7 +35,7 @@ def teleMir_CB():
     
      ## Configure and start output stream (for extracted feature)
     fout = TransmitFeatures(streamhandler = streamhandler)
-    fout.configure( name = 'Test fout',
+    fout.configure( #name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
                                 nb_feature = 21,
                                 nb_pts = 128,
@@ -52,8 +53,10 @@ def teleMir_CB():
     #w_imp.show()
     
     # signal
-    #w_oscilo=Oscilloscope(stream = dev.streams[0])
-    #w_oscilo.show()
+    w_oscilo=Oscilloscope(stream = dev.streams[0])
+    w_oscilo.show()
+    w_oscilo.auto_gain_and_offset(mode = 0)
+    w_oscilo.change_param_global(xsize = 5, mode = 'scroll')
     
     # temps frequence
     w_Tf=TimeFreq(stream = dev.streams[0])
@@ -64,8 +67,13 @@ def teleMir_CB():
     #w_ku.run()  
     
     # freqbands 
-    #w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
-    #w_sp.run()  
+    #w_sp_bd=freqBandsGraphics(stream = dev.streams[0], interval_length = 3., channels = [11,12])
+    #w_sp_bd.run()  
+    
+    ## Bien moins fluide
+    # Spectre
+    #w_sp=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
+    #w_sp.run()
     
     w_feat1=Oscilloscope(stream = fout.streams[0])
     w_feat1.show()

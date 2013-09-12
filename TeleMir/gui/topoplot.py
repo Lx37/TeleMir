@@ -22,10 +22,10 @@ import pyqtgraph.opengl as gl
 
 
 class Topoplot(QtGui.QWidget):
-    def __init__(self, stream = None, parent = None, type = 'topo'):
+    def __init__(self, stream = None, parent = None, type_Topo = 'topo'):
         QtGui.QWidget.__init__(self, parent)
         
-        assert stream['type'] == 'signals_stream_sharedmem'
+        assert type(stream).__name__ == 'AnalogSignalSharedMemStream'
         
         self.stream = stream
         
@@ -43,15 +43,15 @@ class Topoplot(QtGui.QWidget):
         self.half_size = self.np_array.shape[1]/2
         sr = self.stream['sampling_rate']
         
-        if type == 'topo':
+        if type_Topo == 'topo':
             self.imgLevels = (8000,9000)
             self.iblack = 0
             self.colormap = "jet"
-        if type == 'imp':
+        if type_Topo == 'imp':
             self.imgLevels = (0,15)
             self.iblack = 0
             self.colormap = "winter"
-        if type == 'fakeAc':
+        if type_Topo == 'fakeAc':
             self.imgLevels = (-100,100)
             self.iblack = 500
             self.colormap = "jet"
