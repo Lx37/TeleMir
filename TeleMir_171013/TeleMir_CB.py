@@ -43,7 +43,7 @@ def teleMir_CB():
     
     
     app = QtGui.QApplication([])
-    #w0=Topoplot(stream = dev.streams[0], type = 'topo')
+    #w0=Topoplot(stream = dev.streams[0], type_Topo = 'topo')
     #w0.show()
     
     # Impedances
