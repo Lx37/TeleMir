@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 TeleMir developpement version with fake acquisition device
+
+lancer dans un terminal :
+python examples/test_osc_receive.py
 """
 
 from pyacq import StreamHandler, FakeMultiSignals
@@ -8,18 +11,23 @@ from pyacq.gui import Oscilloscope, TimeFreq
 from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics, glSpaceShip
 from TeleMir.gui import ScanningOscilloscope,SpectrumGraphics
 from TeleMir.analyses import TransmitFeatures
+#from TeleMir.example import test_osc_receive
 
 import msgpack
 #~ import gevent
 #~ import zmq.green as zmq
 
 from PyQt4 import QtCore,QtGui
+#from multiprocessing import Process
 
 import zmq
 import msgpack
 import time
 
+import os
+
 def teleMir_CB():
+       
     streamhandler = StreamHandler()
     
     # Configure and start
@@ -45,6 +53,10 @@ def teleMir_CB():
                                 )
     fout.initialize(stream_in = dev.streams[0]) 
     fout.start()
+    
+    #Osc server
+    #p = Process(target=., args=('bob',))
+    
     
     app = QtGui.QApplication([])
     

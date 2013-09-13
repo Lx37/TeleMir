@@ -14,6 +14,8 @@ import scipy as sc
 import time
 import pyeeg
 #from pyentropy import DiscreteSystem
+from sklearn.decomposition import FastICA
+import pylab as pl
 
 class GetFeatures():
     def __init__(self,stream_in, name = 'test'):
@@ -67,6 +69,8 @@ class GetFeatures():
         self.alpha_cumul = []
         self.Xsmooth = 10
         self.Xsmooth2 = 50
+        
+        self.template_blink = np.array([2,2,0,1,2,2,0,0,1,3,0,0,3])
         
     def extract_TCL(self, data):
         
@@ -153,6 +157,17 @@ class GetFeatures():
                 #~ s.calculate_entropies(method='pt', calc=['HX', 'HXY'])
                 #~ self.entropy[i,k] = s.I()
             #self.ApEntropy = pyeeg.ap_entropy(data[i],1,1)
+            
+        #ICA
+        #ica = FastICA()
+        #S_ = ica.fit(data).transform(data)
+        #print S_.shape
+            
+        #Correlation to blink template
+        #print self.np_arr_in[:,head+self.half_size_in]
+        #print np.correlate(self.np_arr_in[:,head+self.half_size_in], self.template_blink )/50000
+            
+            
         
     #Calcul des puissance des bandes
     def bands_power(self,spectrum):
