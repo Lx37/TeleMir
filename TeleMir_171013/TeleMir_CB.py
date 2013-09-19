@@ -49,29 +49,31 @@ def teleMir_CB():
     # Impedances
     w_imp=Topoplot(stream = dev.streams[1], type_Topo = 'imp')
     w_imp.show()
+    w_imp2=Oscilloscope(stream = dev.streams[1])
+    w_imp2.show()
     
-    # signal
-    w_oscilo=Oscilloscope(stream = dev.streams[0])
-    w_oscilo.show()
+    #~ # signal
+    #~ w_oscilo=Oscilloscope(stream = dev.streams[0])
+    #~ w_oscilo.show()
     
     # temps frequence
-    w_Tf=TimeFreq(stream = dev.streams[0])
-    w_Tf.show()  
+    #w_Tf=TimeFreq(stream = dev.streams[0])
+    #w_Tf.show()  
     
     # kurtosis 
-    w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
-    w_ku.run()  
+    #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
+    #w_ku.run()  
     
     # freqbands 
-    w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
-    w_sp.run()  
+    #w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
+    #w_sp.run()  
         
-    w_feat1=Oscilloscope(stream = fout.streams[0])
-    w_feat1.show()
-    w_feat2=Oscilloscope(stream = fout.streams[0])
-    w_feat2.show()
-    w_feat3=Oscilloscope(stream = fout.streams[0])
-    w_feat3.show()
+    #w_feat1=Oscilloscope(stream = fout.streams[0])
+    #w_feat1.show()
+    #w_feat2=Oscilloscope(stream = fout.streams[0])
+    #w_feat2.show()
+    #w_feat3=Oscilloscope(stream = fout.streams[0])
+    #w_feat3.show()
     
     app.exec_()
     

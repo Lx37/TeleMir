@@ -61,7 +61,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.extractor = GetFeatures.GetFeatures(stream_in)
         
         ## OSC socket
-        self.oscIP = '194.167.217.246'
+        self.oscIP = '127.0.0.1'
         self.oscPort = 9001
         self.oscClient = OSC.OSCClient()
         self.oscMsg = OSC.OSCMessage() 
@@ -97,7 +97,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
                                                 )
         
         arr_size = self.stream_out['shared_array'].shape[1]
-        assert (arr_size/2)%self.packet_size ==0, 'buffer should be a multilple of pcket_size {}/2 {}'.format(arr_size, self.packet_size)
+        assert (arr_size/2)%self.packet_size ==0, 'buffer should be a multilple of packet_size {}/2 {}'.format(arr_size, self.packet_size)
         
         self.name_stream_out = 'Stream out'
         self.sr_out = float(self.sampling_rate)
@@ -165,7 +165,6 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         #print 'head : ', head
         
         ## Compute features
-        #features = self.extractor.extract_TCL(data)
         features = self.extractor.extract_TCL(head)
         
         ## Write out and send position
@@ -184,7 +183,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.socket_out.send(msgpack.dumps(self.abs_pos))
         
         #send OSC
-        self.sendOSC(features)
+        #self.sendOSC(features)
         
         t_out = time.time()
         

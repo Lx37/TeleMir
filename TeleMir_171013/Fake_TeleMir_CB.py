@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
 """
 TeleMir developpement version with fake acquisition device
+
+lancer dans un terminal :
+python examples/test_osc_receive.py
 """
 
 from pyacq import StreamHandler, FakeMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
-from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics
+from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics, glSpaceShip
 from TeleMir.gui import ScanningOscilloscope,SpectrumGraphics
 from TeleMir.analyses import TransmitFeatures
+#from TeleMir.example import test_osc_receive
 
 import msgpack
 #~ import gevent
 #~ import zmq.green as zmq
 
 from PyQt4 import QtCore,QtGui
+#from multiprocessing import Process
 
 import zmq
 import msgpack
 import time
 
+import os
+
 def teleMir_CB():
+       
     streamhandler = StreamHandler()
     
     # Configure and start
@@ -46,6 +54,10 @@ def teleMir_CB():
     fout.initialize(stream_in = dev.streams[0]) 
     fout.start()
     
+    #Osc server
+    #p = Process(target=., args=('bob',))
+    
+    
     app = QtGui.QApplication([])
     
     # Impedances
@@ -53,22 +65,22 @@ def teleMir_CB():
     #w_imp.show()
     
     # signal
-    w_oscilo=Oscilloscope(stream = dev.streams[0])
-    w_oscilo.show()
-    w_oscilo.auto_gain_and_offset(mode = 0)
-    w_oscilo.change_param_global(xsize = 5, mode = 'scroll')
+    #~ w_oscilo=Oscilloscope(stream = dev.streams[0])
+    #~ w_oscilo.show()
+    #~ w_oscilo.auto_gain_and_offset(mode = 0)
+    #~ w_oscilo.change_param_global(xsize = 5, mode = 'scroll')
     
     # temps frequence
-    w_Tf=TimeFreq(stream = dev.streams[0])
-    w_Tf.show()  
+    #~ w_Tf=TimeFreq(stream = dev.streams[0])
+    #~ w_Tf.show()  
     
     # kurtosis 
     #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
     #w_ku.run()  
     
     # freqbands 
-    #w_sp_bd=freqBandsGraphics(stream = dev.streams[0], interval_length = 3., channels = [11,12])
-    #w_sp_bd.run()  
+    w_sp_bd=freqBandsGraphics(stream = dev.streams[0], interval_length = 3., channels = [11,12])
+    w_sp_bd.run()  
     
     ## Bien moins fluide
     # Spectre
@@ -77,6 +89,10 @@ def teleMir_CB():
     
     w_feat1=Oscilloscope(stream = fout.streams[0])
     w_feat1.show()
+    
+    #w1 = glSpaceShip(dev.streams[0])
+    #w1.run()
+    #w1.showFullScreen()
     
        
     

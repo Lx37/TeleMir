@@ -13,7 +13,9 @@ import numpy as np
 import scipy as sc
 import time
 import pyeeg
-from pyentropy import DiscreteSystem
+#from pyentropy import DiscreteSystem
+from sklearn.decomposition import FastICA
+import pylab as pl
 
 class GetFeatures():
     def __init__(self,stream_in, name = 'test'):
@@ -61,12 +63,14 @@ class GetFeatures():
         self.kurtos = np.zeros((self.nb_chan), dtype = np.float)
         
         #Entrpy
-        self.entropy = np.zeros((self.nb_chan,self.nb_chan), dtype = np.float)
+        #self.entropy = np.zeros((self.nb_chan,self.nb_chan), dtype = np.float)
         
         #Moyennes glissantes et cumulées
         self.alpha_cumul = []
         self.Xsmooth = 10
         self.Xsmooth2 = 50
+        
+        self.template_blink = np.array([2,2,0,1,2,2,0,0,1,3,0,0,3])
         
     def extract_TCL(self, data):
         
@@ -116,43 +120,23 @@ class GetFeatures():
     def getFeat(self,head):
         
         data = self.np_arr_in[:, head+self.half_size_in-self.nb_pts : head+self.half_size_in]
-        
-        # Taille de fenere adaptée pour 10 cycles d'ondes autours da la frequence médiane de bande
-        #data_Delta = self.np_arr_in[:, head+self.half_size_in- self.nb_pts*5: head+self.half_size_in]  # 5s for 2Hz
-        #data_Theta = self.np_arr_in[:, head+self.half_size_in-self.nb_pts*1.5 : head+self.half_size_in]  # 1,5s for 6Hz
-        #data_Alpha = self.np_arr_in[:, head+self.half_size_in-self.nb_pts : head+self.half_size_in] # 1 s for  10 Hz
-        #data_Beta = self.np_arr_in[:, head+self.half_size_in-self.nb_pts*0.5 : head+self.half_size_in] # 0.5 for 20 Hz
-        #data_Gamma = self.np_arr_in[:, head+self.half_size_in-self.nb_pts*0.25 : head+self.half_size_in] # for 40 Hz
-        
-        
-        for i in self.channels:  # For each channel
+
+        for i in self.channels: 
             j=0
             for bd in self.band_time_size:
                 data_band = self.np_arr_in[i, head+self.half_size_in- (self.nb_pts*bd): head+self.half_size_in]
                 #fft
-                spectrum_band = np.array(abs(sc.fft(data_band))[1:self.nFreqMax+1])
+                spectrum_band = np.array(abs(sc.fft(data_band)))
                 spectrum_band = np.average(spectrum_band[self.bands[j][0]:self.bands[j][1]], axis = 0)  # ! Borne Sup non comprise !
                 
-            #p_delta = np.average(np.array(abs(sc.fft(data_Delta[i]))[self.bands[0][0]:self.bands[0][1]+1]), axis = 0)
-            #p_Theta  = np.average(np.array(abs(sc.fft(data_Theta[i]))[self.bands[1][0]:self.bands[1][1]+1]), axis = 0)
-            #p_Alpha = np.array(abs(sc.fft(data_Alpha[i]))[1:self.nFreqMax+1])
-            #p_Beta = np.average(np.array(abs(sc.fft(data_Beta[i]))[self.bands[3][0]:self.bands[3][1]+1]), axis = 0)
-            #p_Gamma = np.array(abs(sc.fft(data_Gamma[i]))[self.bands[4]])
-            
-            #p_Alpha =  np.sum(p_Alpha[self.bands[2][0]:self.bands[2][1]])/(self.bands[2][1]-self.bands[2][0])
-            #p_Alpha =  np.average(p_Alpha[self.bands[2][0]:self.bands[2][1]], axis = 0)
-            #p_Alpha = np.average(np.array(abs(sc.fft(data_Alpha[i]))[self.bands[2][0]:self.bands[2][1]]), axis = 0)  # ! different !
-            
-            #self.pows2[i] = [p_delta, p_Theta, p_Alpha, p_Beta]
-            #print self.pows2.shape
-            
-                self.pows2[i][j] = spectrum_band
+                self.pows2[i][j] = spectrum_band                
                 j=j+1
                 
                 
                 
             #calcul des fft
             spectrum=np.array(abs(sc.fft(data[i]))[1:self.nFreqMax+1]) 
+            
             #calcul des puissances par bandes
             self.pows[i]=self.bands_power(spectrum)
             # Kurtosis
@@ -173,6 +157,17 @@ class GetFeatures():
                 #~ s.calculate_entropies(method='pt', calc=['HX', 'HXY'])
                 #~ self.entropy[i,k] = s.I()
             #self.ApEntropy = pyeeg.ap_entropy(data[i],1,1)
+            
+        #ICA
+        #ica = FastICA()
+        #S_ = ica.fit(data).transform(data)
+        #print S_.shape
+            
+        #Correlation to blink template
+        #print self.np_arr_in[:,head+self.half_size_in]
+        #print np.correlate(self.np_arr_in[:,head+self.half_size_in], self.template_blink )/50000
+            
+            
         
     #Calcul des puissance des bandes
     def bands_power(self,spectrum):
@@ -184,14 +179,14 @@ class GetFeatures():
                 
             #Cas où l'octave est comprise dans une unique fréquence
             if int(nf1)-int(nf0)==0:
-                bandes.append(spectrum[int(nf0)-1])   ## Devrait etre pow.append ?
+                bandes.append(spectrum[int(nf0)-1])   ## Devrait etre pows.append ?
             #Cas où l'octave chevauche plusieurs fréquences :
             else :
                 #somme des puissances des fréquences entièrement comprises dans l'octave
                 #plus de celles des extrémités, pondérée par largeur de celles-ci comprises
                 #dans la bandes
-                #som=(int(nf0)+1-nf0)*spectrum[int(nf0)-1] + np.sum(spectrum[int(nf0):int(nf1)-1]) + (nf1-int(nf1))*spectrum[int(nf1)-1]   ## pourquoi int(nf1)-1 ?
-                som = np.sum(spectrum[int(nf0):int(nf1)])  ## Utilisé pour tester sur alpha, on a bien la même chose :)
+                som=(int(nf0)+1-nf0)*spectrum[int(nf0)-1] + np.sum(spectrum[int(nf0):int(nf1)-1]) + (nf1-int(nf1))*spectrum[int(nf1)-1]   
+                #som = np.sum(spectrum[int(nf0):int(nf1)])  ## Utilisé pour tester sur alpha, on a bien la même chose :)
                 mean=som/(f1-f0)
                 pows.append(mean)
         return pows
