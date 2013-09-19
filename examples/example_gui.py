@@ -24,7 +24,7 @@ def main():
 
     #dev = EmotivMultiSignals(streamhandler = streamhandler)
     #dev.configure(buffer_length = 1800, # doit être un multiple du packet size
-                                device_path = '',)
+                       #         device_path = '',)
     
     
     # Configure and start
