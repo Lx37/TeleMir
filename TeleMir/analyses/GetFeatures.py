@@ -121,7 +121,7 @@ class GetFeatures():
         
         data = self.np_arr_in[:, head+self.half_size_in-self.nb_pts : head+self.half_size_in]
 
-        for i in self.channels:  # For each channel
+        for i in self.channels: 
             j=0
             for bd in self.band_time_size:
                 data_band = self.np_arr_in[i, head+self.half_size_in- (self.nb_pts*bd): head+self.half_size_in]
@@ -179,7 +179,7 @@ class GetFeatures():
                 
             #Cas où l'octave est comprise dans une unique fréquence
             if int(nf1)-int(nf0)==0:
-                bandes.append(spectrum[int(nf0)-1])   ## Devrait etre pow.append ?
+                bandes.append(spectrum[int(nf0)-1])   ## Devrait etre pows.append ?
             #Cas où l'octave chevauche plusieurs fréquences :
             else :
                 #somme des puissances des fréquences entièrement comprises dans l'octave

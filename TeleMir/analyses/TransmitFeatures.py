@@ -183,7 +183,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.socket_out.send(msgpack.dumps(self.abs_pos))
         
         #send OSC
-        self.sendOSC(features)
+        #self.sendOSC(features)
         
         t_out = time.time()
         

@@ -52,9 +52,9 @@ def teleMir_CB():
     w_imp2=Oscilloscope(stream = dev.streams[1])
     w_imp2.show()
     
-    # signal
-    w_oscilo=Oscilloscope(stream = dev.streams[0])
-    w_oscilo.show()
+    #~ # signal
+    #~ w_oscilo=Oscilloscope(stream = dev.streams[0])
+    #~ w_oscilo.show()
     
     # temps frequence
     #w_Tf=TimeFreq(stream = dev.streams[0])
