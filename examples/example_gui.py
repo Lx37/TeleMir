@@ -4,7 +4,7 @@
 
 """
 
-from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics
+from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics,spaceShipLauncher
 
 from pyacq import StreamHandler, FakeMultiSignals, EmotivMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
@@ -22,26 +22,27 @@ def main():
     streamhandler = StreamHandler()
     
 
-    #dev = EmotivMultiSignals(streamhandler = streamhandler)
-    #dev.configure(buffer_length = 1800, # doit être un multiple du packet size
-
+    dev = EmotivMultiSignals(streamhandler = streamhandler)
+    dev.configure(buffer_length = 1800,) # doit être un multiple du packet size
+    
     
     
     # Configure and start
-    dev = FakeMultiSignals(streamhandler = streamhandler)
-    dev.configure( #name = 'Test dev',
-                                nb_channel = 14,
-                                sampling_rate =128.,
-                                buffer_length = 10.,
-                                packet_size = 1,
-                                )
+    #dev = FakeMultiSignals(streamhandler = streamhandler)
+    #dev.configure( #name = 'Test dev',
+     #                           nb_channel = 14,
+      #                          sampling_rate =128.,
+       #                         buffer_length = 10.,
+        #                        packet_size = 1,
+         #                       )
     
     dev.initialize()
     dev.start()
     
     app = QtGui.QApplication([])
-
-    w1=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
+#    w1=ScanningOscilloscope(dev.streams[2],2.,channels=[0,1])
+    w1=spaceShipLauncher(dev.streams[2])
+   # w1=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
   #  w2=KurtosisGraphics(dev.streams[0],3.,channels=range(2,8))
 
     w1.run()

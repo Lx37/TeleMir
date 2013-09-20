@@ -7,7 +7,7 @@
 Very simple acquisition with a fake multi signal device.
 
 """
-from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,KurtosisGraphicsSci,SpectrumGraphics,freqBandsGraphics,glSpaceShip,Oscilloscope
+from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,KurtosisGraphicsSci,SpectrumGraphics,freqBandsGraphics,spaceShipLauncher,Oscilloscope
 
 from pyacq import StreamHandler, FakeMultiSignals
 from pyqtgraph.Qt import QtGui, QtCore
@@ -43,7 +43,7 @@ def test1():
     
  #   w1 = ScanningOscilloscope(dev.streams[0],2.,channels=[0])
 #    w2 = Oscilloscope(dev.streams[0],2.,channels=[0,1,2])
-    w1 = glSpaceShip(dev.streams[0])
+    w1 = spaceShipLauncher(dev.streams[0])
    # w1 = freqBandsGraphics(dev.streams[0],5.,channels=[1])
   #  w1 = SpectrumGraphics(dev.streams[0],2.,logMode=True,channels=range(2))
   #  w1 = SpectrumGraphics(dev.streams[0],2.,logMode=True,channels=range(14),octavMode=True,octaveRan=1.26)
@@ -61,7 +61,7 @@ def test1():
 
    # w2.run()    
 
-    w1.showFullScreen()
+ #   w1.showFullScreen()
     #When you close the window the fake device stop emmiting
     w1.connect(w1,QtCore.SIGNAL("fermeturefenetre()"),dev.stop)
     dev.close()

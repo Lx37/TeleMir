@@ -9,7 +9,18 @@ from objloader import *
 from .pyqtgraphWorker import GraphicsWorker
 
 
-class glSpaceShip(QtOpenGL.QGLWidget,GraphicsWorker):
+class glTelemirCube:
+    def __init__(self,x,y,z):
+        self.x=x
+        self.y=y
+        self.z=z
+
+    def oneStepNearer(self):
+        self.y=(self.y-58)%200 - 200 + 50 
+
+class glSpaceShip:
+    pass
+class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
     '''
     Cette classe affiche un vaisseau spatiale dont les mouvements
     sont liées à des vitesses amenée par un flux (deux canaux).
@@ -34,8 +45,8 @@ class glSpaceShip(QtOpenGL.QGLWidget,GraphicsWorker):
 
 
     def initPlots(self):
-        self.setFixedSize(1600,1600)
-        self.show()
+     #   self.setFixedSize(1600,1600)
+        self.showFullScreen()
         glLightfv(GL_LIGHT0, GL_POSITION,  (-40, 200, 100, 0.0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.2, 0.2, 0.2, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.5, 0.5, 0.5, 1.0))
