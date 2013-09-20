@@ -32,7 +32,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
     def configure( self, name = 'Test dev', 
                                 nb_channel = None,
                                 nb_pts = None,
-                                nb_feature = 8,
+                                nb_feature = 4,
                                 sampling_rate =1.,
                                 digital_port = None,
                                 buffer_length= 10.,
@@ -53,7 +53,8 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
     def initialize(self, stream_in):
         ## Feature stuff
         #self.feature_names = ['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'DeltaMean2','ThetaMean2','AlphaMean2','BetaMean2','GammaMean2','MuMean2']
-        self.feature_names = ['DeltaMean2','ThetaMean2','AlphaMean2','BetaMean2','GammaMean2','MuMean2', 'pAlphaO12', 'alpha_cumul', 'alpha_smooth', 'alpha_smooth2', 'pThetaAF34F34', 'pBetaF34', 'R1', 'R2', 'R3', 'R5', 'R6', 'R7', 'R8', 'R9', 'meanKurto']
+        #self.feature_names = ['DeltaMean2','ThetaMean2','AlphaMean2','BetaMean2','GammaMean2','MuMean2', 'pAlphaO12', 'alpha_cumul', 'alpha_smooth', 'alpha_smooth2', 'pThetaAF34F34', 'pBetaF34', 'R1', 'R2', 'R3', 'R5', 'R6', 'R7', 'R8', 'R9', 'meanKurto']
+        self.feature_names = ['Contrib_alpha_smooth', 'alpha_cumul', 'blink', 'Cristpation']
         self.feature_indexes = np.arange(self.nb_feature)
         self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','AF3'] 
         self.channel_indexes = range(self.nb_channel) 
