@@ -67,8 +67,11 @@ class GetFeatures():
         #self.entropy = np.zeros((self.nb_chan,self.nb_chan), dtype = np.float)
         
         #Moyennes glissantes et cumulées
-        self.contrib_alpha_cumul = []
+        #self.contrib_alpha_cumul = []
+        self.alpha_cumul = []
+        self.id_new_cumul = 0
         self.Xsmooth =30
+        self.alpha_cumul_th = 200000#1000000
         
         mean = 0
         variance = 50
@@ -80,12 +83,12 @@ class GetFeatures():
     def extract_TCL(self, data):
         
         self.getFeat(data)
-        brink_feat = self.is_blink(data)
+        blink_feat = 0#self.is_blink(data)
         crisp_feat = 0 #self.get_crispation(data)
         
         bandsAv = np.average(self.pows, axis = 0)
         #~ bandsAv2 = np.average(self.pows2, axis = 0)
-        total_power = np.average(bandsAv, axis=0)
+        total_power = np.sum(bandsAv, axis=0)
         
         #pDeltaP7P8 = (self.pows[3,0] + self.pows[8,0])/2
         #~ pThetaAF34F34 = (self.pows2[9,1] + self.pows2[13,1] + self.pows2[0,1] + self.pows2[1,1])/2
@@ -94,16 +97,36 @@ class GetFeatures():
         #pGammaFC56 = (self.pows[4,4] + self.pows[9,4])/2
         #pMuT78 = (self.pows[7,5] + self.pows[11,5])/2
         
-        contrib_alpha = bandsAv[2]/total_power
+        #contrib_alpha = bandsAv[2]/total_power
+        #self.contrib_alpha_cumul.append(contrib_alpha)
+        #contrib_alpha_cumul = np.sum(self.contrib_alpha_cumul)
+        self.alpha_cumul.append( bandsAv[2])
+        alpha_cumul = np.sum(self.alpha_cumul[self.id_new_cumul:])
         
-        self.contrib_alpha_cumul.append(contrib_alpha)
-        contrib_alpha_cumul = np.sum(self.contrib_alpha_cumul)
+        if (alpha_cumul > self.alpha_cumul_th):
+            print alpha_cumul
+            self.id_new_cumul = len(self.alpha_cumul)
+            print self.id_new_cumul 
+            alpha_cumul = 0
         
-        if len(self.contrib_alpha_cumul) > self.Xsmooth:
-            contrib_alpha_smooth = np.average(self.contrib_alpha_cumul[-self.Xsmooth:])
+        
+        if len(self.alpha_cumul) > self.Xsmooth:
+            #contrib_alpha_smooth = np.average(self.contrib_alpha_cumul[-self.Xsmooth:])
+            alpha_smooth = np.average(self.alpha_cumul[-self.Xsmooth:])
         else:
-            contrib_alpha_smooth = np.average(self.contrib_alpha_cumul)
+            #contrib_alpha_smooth = np.average(self.contrib_alpha_cumul)
+            alpha_smooth = np.average(self.alpha_cumul)
         
+        # Norme
+        if (alpha_smooth > 100 and alpha_smooth < 1000):
+            alpha_smooth_norm = (alpha_smooth - 100) / 9.9 
+        else:
+            if (alpha_smooth < 100):
+                alpha_smooth_norm = 0
+            else:
+                alpha_smooth_norm = 100
+
+            
         # Ratios
         #~ R1 = (bandsAv2[0]*bandsAv2[2]) / (bandsAv2[3]*bandsAv2[4])  #delta.alpha / beta.gamma
         #~ R2 = (bandsAv2[1]*bandsAv2[1]) / (bandsAv2[3]*bandsAv2[4]) # theta ² / beta.gamma
@@ -118,7 +141,7 @@ class GetFeatures():
         
         #features = np.array([bandsAv[0], bandsAv[1], bandsAv[2], bandsAv[3] , bandsAv[4], bandsAv[5], bandsAv2[0], bandsAv2[1], bandsAv2[2], bandsAv2[3],bandsAv2[4], bandsAv2[5]])
         #features = np.array([bandsAv2[0], bandsAv2[1], bandsAv2[2], bandsAv2[3],bandsAv2[4], bandsAv2[5], pAlphaO12, alpha_cumul, alpha_smooth,alpha_smooth2, pThetaAF34F34, pBetaF34, R1, R2, R3, R5, R6, R7, R8, R9,  meanKurto])
-        features = np.array([contrib_alpha_smooth,contrib_alpha_cumul, brink_feat, crisp_feat])
+        features = np.array([alpha_smooth_norm,alpha_cumul, blink_feat, crisp_feat])
         
         return features
     
