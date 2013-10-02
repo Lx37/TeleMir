@@ -42,8 +42,9 @@ def teleMir_CB():
     #~ dev.initialize()
     #~ dev.start()
     
-    filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-19 16:20:36.580141_Alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
-    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-13 15:06:22.747174/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-19 16:20:36.580141_Alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
+    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-18 14:12:09.347990_Caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    filename = '/home/mini/pyacq_emotiv_recording/simple_blink/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
     
     precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
     
@@ -110,6 +111,7 @@ def teleMir_CB():
     
     w_feat1=Oscilloscope(stream = fout.streams[0])
     w_feat1.show()
+    w_feat1.set_params(xsize = 10, mode = 'scroll')
     
     #w1 = glSpaceShip(dev.streams[0])
     #w1.run()

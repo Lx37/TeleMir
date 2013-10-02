@@ -78,12 +78,17 @@ class GetFeatures():
         sigma = np.sqrt(variance)
         x = np.linspace(-25,25,50)
         self.template_blink = mlab.normpdf(x,mean,sigma)*2500
-        
+
+        blink_proj = np.load('./../TeleMir/analyses/ICA_proj.npy')
+        self.blink_invProj = np.linalg.inv(blink_proj)
+        self.n_blink_comp = 2
+        self.last_blink = 0    
+        self.blink_threshold = 0.05
         
     def extract_TCL(self, data):
         
         self.getFeat(data)
-        blink_feat = 0#self.is_blink(data)
+        blink_feat = self.is_blink(data)
         crisp_feat = 0 #self.get_crispation(data)
         
         bandsAv = np.average(self.pows, axis = 0)
@@ -147,18 +152,37 @@ class GetFeatures():
     
     def is_blink(self, head):
 
-        data = self.np_arr_in[:, head+self.half_size_in-self.nb_pts : head+self.half_size_in]
-        # recentre
-        mean_chan = np.median(data,axis=0)
-        data_centred = data - mean_chan[np.newaxis,:]
-        data_centerd_sum = data_centred[:,[0,1,3,4,5,8,9,13]].mean(axis = 1)
-        cv =  np.convolve(data_centerd_sum,self.template_blink, 'valid')[0]
-        print cv
-            
-        if cv > 45000:
-            isBlink =1
+        # sur combien de points  ? ici 64
+        data = self.np_arr_in[:, head+self.half_size_in - 2*self.nb_pts : head+self.half_size_in]
+        
+        data = np.transpose(data) 
+        data_rect = data - np.mean(data, axis = 0)
+        data_rect = np.transpose(data_rect)
+        
+        #~ temp_comp = np.dot( self.blink_invProj, data)
+        #~ isBlink = np.mean(temp_comp[self.n_blink_comp,:])
+        
+        blink_comp = np.dot( self.blink_invProj[self.n_blink_comp], data_rect[:,-10])
+        
+        
+        
+        if np.mean(blink_comp) > self.blink_threshold and self.lastBlink < self.blink_threshold:
+            isBlink = 1
         else:
             isBlink = 0
+        
+        self.lastBlink = np.mean(blink_comp)
+        # recentre
+        #~ mean_chan = np.median(data,axis=0)
+        #~ data_centred = data - mean_chan[np.newaxis,:]
+        #~ data_centerd_sum = data_centred[:,[0,1,3,4,5,8,9,13]].mean(axis = 1)
+        #~ cv =  np.convolve(data_centerd_sum,self.template_blink, 'valid')[0]
+        #~ print cv
+            
+        #~ if cv > 45000:
+            #~ isBlink =1
+        #~ else:
+            #~ isBlink = 0
             
         return isBlink
     
