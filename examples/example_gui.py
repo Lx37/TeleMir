@@ -4,7 +4,7 @@
 
 """
 
-from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics,spaceShipLauncher
+from TeleMir.gui import ScanningOscilloscope,KurtosisGraphics,SpectrumGraphics,spaceShipLauncher,Topoplot
 
 from pyacq import StreamHandler, FakeMultiSignals, EmotivMultiSignals
 from pyacq.gui import Oscilloscope, TimeFreq
@@ -42,13 +42,13 @@ def main():
     app = QtGui.QApplication([])
 #    w1=ScanningOscilloscope(dev.streams[2],2.,channels=[0,1])
     w1=spaceShipLauncher(dev.streams[2])
-   # w1=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
+#    w1=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
   #  w2=KurtosisGraphics(dev.streams[0],3.,channels=range(2,8))
-
+#    w2=Topoplot(stream = dev.streams[1], type_Topo ='imp')
     w1.run()
-  #  w2.run()
+ #   w2.show()
 
-    w1.showFullScreen()
+    #w1.showFullScreen()
     
     app.exec_()
     
