@@ -23,6 +23,7 @@ from PyQt4 import QtCore,QtGui
 import zmq
 import msgpack
 import time
+import numpy as np
 
 import os
 
@@ -31,12 +32,30 @@ def teleMir_CB():
     streamhandler = StreamHandler()
     
     # Configure and start
+    #~ dev = FakeMultiSignals(streamhandler = streamhandler)
+    #~ dev.configure( #name = 'Test dev',
+                                #~ nb_channel = 14,
+                                #~ sampling_rate =128.,
+                                #~ buffer_length = 10.,
+                                #~ packet_size = 1,
+                                #~ )
+    #~ dev.initialize()
+    #~ dev.start()
+    
+    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-19 16:20:36.580141_Alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
+    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-18 14:12:09.347990_Caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    filename = '/home/mini/pyacq_emotiv_recording/simple_blink/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    
+    precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
+    
+    # Configure and start
     dev = FakeMultiSignals(streamhandler = streamhandler)
     dev.configure( #name = 'Test dev',
                                 nb_channel = 14,
                                 sampling_rate =128.,
-                                buffer_length = 10.,
+                                buffer_length = 30.,
                                 packet_size = 1,
+                                precomputed = precomputed,
                                 )
     dev.initialize()
     dev.start()
@@ -45,7 +64,7 @@ def teleMir_CB():
     fout = TransmitFeatures(streamhandler = streamhandler)
     fout.configure( #name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 21,
+                                nb_feature = 4,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,
@@ -61,18 +80,21 @@ def teleMir_CB():
     app = QtGui.QApplication([])
     
     # Impedances
-    #w_imp=Topoplot(stream = dev.streams[0], type = 'imp')
-    #w_imp.show()
+    #~ w_imp=Topoplot(stream = dev.streams[0], type_Topo= 'imp')
+    #~ w_imp.show()
     
     # signal
-    #~ w_oscilo=Oscilloscope(stream = dev.streams[0])
-    #~ w_oscilo.show()
-    #~ w_oscilo.auto_gain_and_offset(mode = 0)
-    #~ w_oscilo.change_param_global(xsize = 5, mode = 'scroll')
+    w_oscilo=Oscilloscope(stream = dev.streams[0])
+    w_oscilo.show()
+    w_oscilo.auto_gain_and_offset(mode = 1)
+    w_oscilo.set_params(xsize = 10, mode = 'scroll')
     
     # temps frequence
-    #~ w_Tf=TimeFreq(stream = dev.streams[0])
-    #~ w_Tf.show()  
+    w_Tf=TimeFreq(stream = dev.streams[0])
+    w_Tf.show()  
+    w_Tf.set_params(xsize = 10)
+    w_Tf.change_param_tfr(f_stop = 45, f0 = 1)
+    #w_Tf.change_param_channel(clim = 20)
     
     # kurtosis 
     #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
@@ -84,11 +106,12 @@ def teleMir_CB():
     
     ## Bien moins fluide
     # Spectre
-    #w_sp=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
-    #w_sp.run()
+    #~ w_sp=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
+    #~ w_sp.run()
     
     w_feat1=Oscilloscope(stream = fout.streams[0])
     w_feat1.show()
+    w_feat1.set_params(xsize = 10, mode = 'scroll')
     
     #w1 = glSpaceShip(dev.streams[0])
     #w1.run()
