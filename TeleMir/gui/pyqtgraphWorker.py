@@ -25,23 +25,24 @@ class GraphicsWorker:
     Les canaux à traiter.
     '''
     
-    def __init__(self,stream,interval_length,channels=None):
+    def __init__(self,stream,time_window,channels=None):
         #FIXME : vérifier le type du stream
 
         #Définition de la zone de mémoire à lire
-        self.zone_mem=stream['shared_array'].to_numpy_array()
-        self.half_size=self.zone_mem.shape[1]/2
+        self.shared_array=stream['shared_array'].to_numpy_array()
+        self.half_size=self.shared_array.shape[1]/2
        
         #Choix des canaux à traiter (tous par défaut)
         if channels==None:
-            self.channels=np.arange(self.zone_mem.shape[0])
+            self.channels=np.arange(self.shared_array.shape[0])
         else:
             self.channels=channels
 
         #Définition de la fenêtre temporelle traitée
+        self.time_window=time_window
         self.init=self.half_size
-        self.interval_length=int(interval_length*stream['sampling_rate'])
-        self.data=self.zone_mem[:,self.init:self.init+self.interval_length]
+        self.interval_length=int(time_window*stream['sampling_rate'])
+        self.data=self.shared_array[:,self.init:self.init+self.interval_length]
 
         #initialisation de la connexion
         self.port=stream['port']
@@ -75,10 +76,10 @@ class GraphicsWorker:
     def updateGW(self):
         #Réception de la position de la dernière information écrite
         t=self.threadPos.pos
-        #print t,' zone_mem ',self.zone_mem
+        #print t,' shared_array ',self.shared_array
         self.init=t%(self.half_size)+self.half_size
         #mise à jour de la fenêtre de lecture
-        self.data=self.zone_mem[:,self.init-self.interval_length:self.init]
+        self.data=self.shared_array[:,self.init-self.interval_length:self.init]
         #mise à jour du graph
         self.updatePlots()
 
@@ -88,9 +89,9 @@ class PyQtGraphicsWorker(GraphicsWorker,pg.GraphicsWindow):
     Héritage de GraphicsWorker qui sert à utiliser pyqtgraph.
     '''
     
-    def __init__(self,stream,interval_length,channels=None,title=None,**kwargs):
+    def __init__(self,stream,time_window,channels=None,title=None,**kwargs):
         pg.GraphicsWindow.__init__(self,title)
-        GraphicsWorker.__init__(self,stream,interval_length,channels)
+        GraphicsWorker.__init__(self,stream,time_window,channels)
 
         #création d'une variable qui contiendra les courbes construites,
         #permettant ainsi la mise à jour de manière trés simple
