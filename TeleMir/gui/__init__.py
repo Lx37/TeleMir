@@ -6,5 +6,5 @@ from .KurtosisGraphics import KurtosisGraphics
 from .SpectrumGraphics import SpectrumGraphics
 from .frequencyBands import freqBandsGraphics
 from .topoplot import Topoplot
-from .shipPlotv2 import spaceShipLauncher
+from .shipPlot import spaceShipLauncher
 from .KurtosisGraphicsSci import KurtosisGraphicsSci

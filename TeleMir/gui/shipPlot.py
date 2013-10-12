@@ -7,19 +7,121 @@ from OpenGL.GLUT import *
 import numpy
 from objloader import *
 from .pyqtgraphWorker import GraphicsWorker
+import time
 
+#TO DO: 
+# Mettre en vrai plein écran
+# Mettre les fichiers dans un truc à part
 
 class glTelemirCube:
     def __init__(self,x,y,z):
         self.x=x
         self.y=y
         self.z=z
+        self.size=5
+        self.speed=13
 
     def oneStepNearer(self):
-        self.y=(self.y-58)%200 - 200 + 50 
+        self.y=self.y-self.speed
+        if self.y<-190:
+            self.y=numpy.random.randint(0,100)
+            r=numpy.random.randint(35,55)
+            theta=numpy.random.rand(1)*2*numpy.pi-numpy.pi
+            self.x=r*numpy.cos(theta)
+            self.z=r*numpy.sin(theta)
+           
+
+    def dessiner_cube(self):
+
+        glPushMatrix()
+        glTranslated(self.x,self.y,self.z)
+        #print self.dist
+        glBegin(GL_QUADS)
+        
+        #face rouge
+        glColor3ub(200,200,200)
+        glVertex3d(self.size,self.size,self.size)
+        glVertex3d(self.size,-self.size,self.size)
+        glVertex3d(self.size,-self.size,-self.size)
+        glVertex3d(self.size,self.size,-self.size)
+
+        #face
+        glColor3ub(60,60,60)
+        glVertex3d(-self.size,self.size,self.size)
+        glVertex3d(-self.size,self.size,-self.size)
+        glVertex3d(-self.size,-self.size,-self.size)
+        glVertex3d(-self.size,-self.size,self.size)
+
+        #face verte
+        glColor3ub(100,100,100)
+        glVertex3d(self.size,self.size,self.size)
+        glVertex3d(self.size,self.size,-self.size)
+        glVertex3d(-self.size,self.size,-self.size)
+        glVertex3d(-self.size,self.size,self.size)
+
+        #face bleue
+        glColor3ub(140,140,140)
+        glVertex3d(self.size,-self.size,self.size)
+        glVertex3d(-self.size,-self.size,self.size)
+        glVertex3d(-self.size,-self.size,-self.size)
+        glVertex3d(self.size,-self.size,-self.size)
+
+        #face blanche
+        glColor3ub(170,170,170)
+        glVertex3d(self.size,self.size,self.size)
+        glVertex3d(-self.size,self.size,self.size)
+        glVertex3d(-self.size,-self.size,self.size)
+        glVertex3d(self.size,-self.size,self.size)
+
+        #face
+        glColor3ub(200,200,200)
+        glVertex3d(self.size,self.size,-self.size)
+        glVertex3d(self.size,-self.size,-self.size)
+        glVertex3d(-self.size,-self.size,-self.size)
+        glVertex3d(-self.size,self.size,-self.size)
+
+        
+        glEnd()
+
+        glPopMatrix()
+        glFlush()
 
 class glSpaceShip:
-    pass
+    def __init__(self,period):
+        self.x=0
+        self.y=0
+        self.vitx=0
+        self.vity=0
+        self.obj = None #instanciation
+        self.period=period
+        #Ressort
+        self.k=0.1
+
+    def updatePos(self):
+        #filtre des valeurs les plus basses, pour éviter un peu la dérive
+        if abs(self.vitx) == 5 : self.vitx=0
+        if abs(self.vity) == 5 : self.vity=0
+
+        #Euler
+        self.x+=self.vitx*self.period/1000.-self.k*self.x
+        self.y+=self.vity*self.period/1000.-self.k*self.y
+
+    def draw(self):
+
+        glPushMatrix()
+        
+        glTranslated(0,-50,0)
+        glScaled(0.6,0.6,0.6)
+#rotation en fonction des valeurs enregistrées
+        glRotated(-self.x,1,0,0)
+        glRotated(self.y,0,0,1)   
+
+        glCallList(self.obj.gl_list)
+
+        glPopMatrix()
+        
+
+
 class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
     '''
     Cette classe affiche un vaisseau spatiale dont les mouvements
@@ -30,23 +132,20 @@ class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
 
     def __init__(self,stream,parent=None):
         QtOpenGL.QGLWidget.__init__(self,parent)
-        GraphicsWorker.__init__(self,stream,1.)# on ne se soucis pas de la taille de la fenêtre, puisqu'on utilisera toujours la dernière valeur.
+        GraphicsWorker.__init__(self,stream,0.2)# on ne se soucis pas de la taille de la fenêtre, puisqu'on utilisera toujours la dernière valeur. Mais en fait je m'en sert pour l'étalonnage des gyro.
         
-        #Coordonnées du vaisseau
-        self.x=0
-        self.y=0
-        self.vitx=0
-        self.vity=0
+        self.spaceShip=glSpaceShip(self.period)
+
+        #Offset des gyro du casques, mesurés dans initPlots
+        self.xOffset=0
+        self.yOffset=0
+        self.nbCubes=9
+        self.cubes=[glTelemirCube(numpy.random.randint(-30,30),numpy.random.randint(-50,50),numpy.random.randint(-30,30)) for i in range(self.nbCubes)]
+
         
-        #distance des cubes (passer tout ça en objet, c'est trop laid comme ça)
-        self.dists=[50,0,-50]
-        self.xcubes=[-20,20,30]
-        self.zcubes=[10,-30,20]
-
-
     def initPlots(self):
      #   self.setFixedSize(1600,1600)
-        self.showFullScreen()
+        self.show()
         glLightfv(GL_LIGHT0, GL_POSITION,  (-40, 200, 100, 0.0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.2, 0.2, 0.2, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.5, 0.5, 0.5, 1.0))
@@ -56,29 +155,34 @@ class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
         glEnable(GL_DEPTH_TEST)
         glShadeModel(GL_SMOOTH)  
 
-        self.obj = OBJ('spaceFighter.obj', swapyz=True)
+        self.spaceShip.obj = OBJ('spaceFighter.obj', swapyz=True)
 
         glMatrixMode( GL_PROJECTION )
         glLoadIdentity( )
-        gluPerspective(70,640./480,1,200)
+        gluPerspective(70,640./480,1,250)
         glEnable(GL_DEPTH_TEST)
         glMatrixMode(GL_MODELVIEW)
 
+        #Offset measurements of the gyroscopes
+        time.sleep(self.time_window)
+        self.updateGW() #inherited from parent class
+        mx=numpy.mean(self.data[1,:])
+        my=numpy.mean(self.data[0,:])        
+        self.xOffset=numpy.round(mx)
+        self.yOffset=numpy.round(my)
+        print self.xOffset,' ',self.yOffset
+
     def updatePlots(self):
 
-        self.vitx=(self.data[1,-1]+2.)*5
-        self.vity=(self.data[0,-1]+3.)*5
+        self.spaceShip.vitx=(self.data[1,-1]-self.xOffset)*5
+        self.spaceShip.vity=(self.data[0,-1]-self.yOffset)*5
 
-        #filtre des valeurs les plus basses, pour éviter un peu la dérive
-        if abs(self.vitx) == 5 : self.vitx=0
-        if abs(self.vity) == 5 : self.vity=0
-
-        #Euler
-        self.x+=self.vitx*self.period/1000.
-        self.y+=self.vity*self.period/1000.
-
+        self.spaceShip.updatePos()
         #Les cubes avancent
-        self.dists=[(dist-58)%200 - 200 + 50 for dist in self.dists]
+        #self.dists=[(dist-58)%200 - 200 + 50 for dist in self.dists]
+        for cube in self.cubes:
+            cube.oneStepNearer()
+
         self.updateGL()
 
 
@@ -90,83 +194,13 @@ class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
         #position de la caméra
         gluLookAt(0,-150,0,0,0,0,0,0,1)
 
-        self.dessiner_navette()
+#        self.dessiner_navette()
+        self.spaceShip.draw()
 
-        for i in range(len(self.xcubes)):
-            self.dessiner_cube(i)
+        for cube in self.cubes:
+            cube.dessiner_cube()
 
         glFlush()
-
-    def dessiner_navette(self):
-
-        glPushMatrix()
-        
-        #rotation en fonction des valeurs enregistrées
-        glRotated(-self.x,1,0,0)
-        glRotated(self.y,0,0,1)
-     
-        glCallList(self.obj.gl_list)
-
-        glPopMatrix()
-        
-
-
-    def dessiner_cube(self,i):
-
-        glPushMatrix()
-        glTranslated(self.xcubes[i],self.dists[i],self.zcubes[i])
-        #print self.dist
-        glBegin(GL_QUADS)
-        
-        taille_cube=5
-        #face rouge
-        glColor3ub(200,200,200)
-        glVertex3d(taille_cube,taille_cube,taille_cube)
-        glVertex3d(taille_cube,-taille_cube,taille_cube)
-        glVertex3d(taille_cube,-taille_cube,-taille_cube)
-        glVertex3d(taille_cube,taille_cube,-taille_cube)
-
-        #face
-        glColor3ub(60,60,60)
-        glVertex3d(-taille_cube,taille_cube,taille_cube)
-        glVertex3d(-taille_cube,taille_cube,-taille_cube)
-        glVertex3d(-taille_cube,-taille_cube,-taille_cube)
-        glVertex3d(-taille_cube,-taille_cube,taille_cube)
-
-        #face verte
-        glColor3ub(100,100,100)
-        glVertex3d(taille_cube,taille_cube,taille_cube)
-        glVertex3d(taille_cube,taille_cube,-taille_cube)
-        glVertex3d(-taille_cube,taille_cube,-taille_cube)
-        glVertex3d(-taille_cube,taille_cube,taille_cube)
-
-        #face bleue
-        glColor3ub(140,140,140)
-        glVertex3d(taille_cube,-taille_cube,taille_cube)
-        glVertex3d(-taille_cube,-taille_cube,taille_cube)
-        glVertex3d(-taille_cube,-taille_cube,-taille_cube)
-        glVertex3d(taille_cube,-taille_cube,-taille_cube)
-
-        #face blanche
-        glColor3ub(170,170,170)
-        glVertex3d(taille_cube,taille_cube,taille_cube)
-        glVertex3d(-taille_cube,taille_cube,taille_cube)
-        glVertex3d(-taille_cube,-taille_cube,taille_cube)
-        glVertex3d(taille_cube,-taille_cube,taille_cube)
-
-        #face
-        glColor3ub(200,200,200)
-        glVertex3d(taille_cube,taille_cube,-taille_cube)
-        glVertex3d(taille_cube,-taille_cube,-taille_cube)
-        glVertex3d(-taille_cube,-taille_cube,-taille_cube)
-        glVertex3d(-taille_cube,taille_cube,-taille_cube)
-
-        
-        glEnd()
-
-        glPopMatrix()
-        glFlush()
-        
 
     def keyPressEvent(self, event):
         if event.key()==QtCore.Qt.Key_Left:
