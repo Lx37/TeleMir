@@ -14,12 +14,13 @@ import time
 # Mettre les fichiers dans un truc à part
 
 class glTelemirCube:
-    def __init__(self,x,y,z):
+    def __init__(self,x,y,z,color=[100,100,0]):
         self.x=x
         self.y=y
         self.z=z
         self.size=5
         self.speed=13
+        self.color=color
 
     def oneStepNearer(self):
         self.y=self.y-self.speed
@@ -39,42 +40,42 @@ class glTelemirCube:
         glBegin(GL_QUADS)
         
         #face rouge
-        glColor3ub(200,200,200)
+        glColor3ub(75+self.color[0],75+self.color[1],75+self.color[2])
         glVertex3d(self.size,self.size,self.size)
         glVertex3d(self.size,-self.size,self.size)
         glVertex3d(self.size,-self.size,-self.size)
         glVertex3d(self.size,self.size,-self.size)
 
         #face
-        glColor3ub(60,60,60)
+        glColor3ub(10+self.color[0],10+self.color[1],10+self.color[2])
         glVertex3d(-self.size,self.size,self.size)
         glVertex3d(-self.size,self.size,-self.size)
         glVertex3d(-self.size,-self.size,-self.size)
         glVertex3d(-self.size,-self.size,self.size)
 
         #face verte
-        glColor3ub(100,100,100)
+        glColor3ub(25+self.color[0],25+self.color[1],25+self.color[2])
         glVertex3d(self.size,self.size,self.size)
         glVertex3d(self.size,self.size,-self.size)
         glVertex3d(-self.size,self.size,-self.size)
         glVertex3d(-self.size,self.size,self.size)
 
         #face bleue
-        glColor3ub(140,140,140)
+        glColor3ub(45+self.color[0],45+self.color[1],45+self.color[2])
         glVertex3d(self.size,-self.size,self.size)
         glVertex3d(-self.size,-self.size,self.size)
         glVertex3d(-self.size,-self.size,-self.size)
         glVertex3d(self.size,-self.size,-self.size)
 
         #face blanche
-        glColor3ub(170,170,170)
+        glColor3ub(60+self.color[0],60+self.color[1],60+self.color[2])
         glVertex3d(self.size,self.size,self.size)
         glVertex3d(-self.size,self.size,self.size)
         glVertex3d(-self.size,-self.size,self.size)
         glVertex3d(self.size,-self.size,self.size)
 
         #face
-        glColor3ub(200,200,200)
+        glColor3ub(75+self.color[0],75+self.color[1],75+self.color[2])
         glVertex3d(self.size,self.size,-self.size)
         glVertex3d(self.size,-self.size,-self.size)
         glVertex3d(-self.size,-self.size,-self.size)
@@ -84,7 +85,11 @@ class glTelemirCube:
         glEnd()
 
         glPopMatrix()
+
         glFlush()
+
+class glAsteroid:
+    pass
 
 class glSpaceShip:
     def __init__(self,period):
@@ -130,7 +135,7 @@ class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
     C'est pas vraiment fini.
     '''    
 
-    def __init__(self,stream,parent=None):
+    def __init__(self,stream,cubeColor='summer',parent=None):
         QtOpenGL.QGLWidget.__init__(self,parent)
         GraphicsWorker.__init__(self,stream,0.2)# on ne se soucis pas de la taille de la fenêtre, puisqu'on utilisera toujours la dernière valeur. Mais en fait je m'en sert pour l'étalonnage des gyro.
         
@@ -140,7 +145,19 @@ class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
         self.xOffset=0
         self.yOffset=0
         self.nbCubes=9
-        self.cubes=[glTelemirCube(numpy.random.randint(-30,30),numpy.random.randint(-50,50),numpy.random.randint(-30,30)) for i in range(self.nbCubes)]
+        if cubeColor=='jet':
+            self.cubeColor=[(0,numpy.random.randint(00,125),numpy.random.randint(125,175)) for i in range(self.nbCubes)]
+        elif cubeColor=='hot':
+            self.cubeColor=[(numpy.random.randint(100,175),0,0) for i in range(self.nbCubes)]
+        elif cubeColor=='summer':
+            self.cubeColor=[(numpy.random.randint(0,100),numpy.random.randint(100,175),0) for i in range(self.nbCubes)]
+        self.cubes=[glTelemirCube(numpy.random.randint(-30,30),
+                                  numpy.random.randint(-50,50),
+                                  numpy.random.randint(-30,30),              
+                                  self.cubeColor[i],
+                                   #numpy.random.randint(0,0),
+                                   #numpy.random.randint(0,0)],
+                                  ) for i in range(self.nbCubes)]
 
         
     def initPlots(self):
