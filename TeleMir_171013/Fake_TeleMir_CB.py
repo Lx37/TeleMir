@@ -42,11 +42,13 @@ def teleMir_CB():
     #~ dev.initialize()
     #~ dev.start()
     
-    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-19 16:20:36.580141_Alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
-    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-18 14:12:09.347990_Caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
-    filename = '/home/mini/pyacq_emotiv_recording/simple_blink/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    #~ filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    #~ filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/caro/Emotiv Systems Pty Ltd  #SN201105160008862.raw'
+    filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
+    filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008862.raw'
     
     precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
+    precomputedXY = np.fromfile(filenameXY , dtype = np.float32).reshape(-1, 2).transpose()
     
     # Configure and start
     dev = FakeMultiSignals(streamhandler = streamhandler)
@@ -60,17 +62,29 @@ def teleMir_CB():
     dev.initialize()
     dev.start()
     
+    # Configure and start
+    devXY = FakeMultiSignals(streamhandler = streamhandler)
+    devXY.configure( #name = 'Test dev',
+                                nb_channel = 2,
+                                sampling_rate =128.,
+                                buffer_length = 30.,
+                                packet_size = 1,
+                                precomputed = precomputedXY,
+                                )
+    devXY.initialize()
+    devXY.start()
+    
      ## Configure and start output stream (for extracted feature)
     fout = TransmitFeatures(streamhandler = streamhandler)
     fout.configure( #name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 4,
+                                nb_feature = 6,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,
                                 packet_size = 1,
                                 )
-    fout.initialize(stream_in = dev.streams[0]) 
+    fout.initialize(stream_in = dev.streams[0], stream_xy = devXY.streams[0]) 
     fout.start()
     
     #Osc server
@@ -89,6 +103,12 @@ def teleMir_CB():
     w_oscilo.auto_gain_and_offset(mode = 1)
     w_oscilo.set_params(xsize = 10, mode = 'scroll')
     
+    # giro
+    w_xy=Oscilloscope(stream = devXY.streams[0])
+    w_xy.show()
+    w_xy.auto_gain_and_offset(mode = 1)
+    w_xy.set_params(xsize = 10, mode = 'scroll')
+    
     # temps frequence
     w_Tf=TimeFreq(stream = dev.streams[0])
     w_Tf.show()  
@@ -100,9 +120,9 @@ def teleMir_CB():
     #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
     #w_ku.run()  
     
-    # freqbands 
-    w_sp_bd=freqBandsGraphics(stream = dev.streams[0], interval_length = 3., channels = [11,12])
-    w_sp_bd.run()  
+    #~ # freqbands 
+    #~ w_sp_bd=freqBandsGraphics(stream = dev.streams[0], interval_length = 3., channels = [11,12])
+    #~ w_sp_bd.run()  
     
     ## Bien moins fluide
     # Spectre
@@ -111,7 +131,6 @@ def teleMir_CB():
     
     w_feat1=Oscilloscope(stream = fout.streams[0])
     w_feat1.show()
-    w_feat1.set_params(xsize = 10, mode = 'scroll')
     
     #w1 = glSpaceShip(dev.streams[0])
     #w1.run()
