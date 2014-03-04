@@ -91,13 +91,7 @@ def teleMir_CB():
     #w_feat3=Oscilloscope(stream = fout.streams[0])
     #w_feat3.show()
     
-    timer = QTimer()
-    timer.setInterval(3000) # 5 seconds
-    timer.start()
-    timer.timeout.connect(app.quit)
-    
     app.exec_()
-    #app.startTimer(2000)
     
     # Stope and release the device
     fout.stop()
