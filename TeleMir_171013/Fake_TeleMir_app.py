@@ -16,8 +16,9 @@ TeleMir application - with fake devices
 
 #~ import zmq
 #~ import msgpack
-#~ import time
+import time
 #~ from TeleMir.analyses import TransmitFeatures
+import pyqtgraph as pg
 
 from PyQt4 import QtCore,QtGui
 from TeleMir import Fake_TeleMir_Calibration, Fake_TeleMir_Vol#, Fake_TeleMir_Atterrissage
@@ -69,7 +70,7 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.TC = Fake_TeleMir_Calibration(precomputed = precomputedImp)
         
         ## Read Mire on tv
-        media1 = Phonon.MediaSource('/home/mini/Projets/Pyacq_TeleMir_git/TeleMir/mire/Mire12.avi')
+        media1 = Phonon.MediaSource('/home/mini/Projets/Pyacq_TeleMir_git/mire/Mire25.avi')
         self.vp1 = Phonon.VideoPlayer()
         self.vp1.load(media1)
         self.vp1.play()
@@ -77,14 +78,15 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.vp1.move(1000,200)
         self.vp1.show()
         
+        media2 = Phonon.MediaSource('/home/mini/Projets/Pyacq_TeleMir_git/mire/Mire1.avi')
         self.vp2 = Phonon.VideoPlayer()
-        self.vp2.load(media1)
+        self.vp2.load(media2)
         self.vp2.play()
         self.vp2.show()
         
-        
         self.btn_1.setEnabled(False)
         self.btn_2.setEnabled(True)
+        
         
         
      
@@ -103,9 +105,9 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.vp2.close()
         
         ## Open impedance stream and show views
-        filename = '/home/mini/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
-        filenameImp = '/home/mini/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008861.raw'
-        filenameXY = '/home/mini/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008862.raw'
+        filename = '/home/mini/pyacq_emotiv_recording/new_alex/Emotiv Systems Pty Ltd #SN200709276578910.raw'
+        filenameImp = '/home/mini/pyacq_emotiv_recording/new_alex/Emotiv Systems Pty Ltd #SN200709276578911.raw'
+        filenameXY = '/home/mini/pyacq_emotiv_recording/new_alex/Emotiv Systems Pty Ltd #SN200709276578912.raw'
         
         precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
         precomputedImp = np.fromfile(filenameImp , dtype = np.float32).reshape(-1, 14).transpose()
@@ -114,6 +116,18 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.TV = Fake_TeleMir_Vol(precomputed = precomputed,precomputedXY = precomputedXY )
         
         self.TV.w_oscilo.resize(300,300)
+        #self.TV.w_oscilo.setWindowOpacity(0.5)
+        
+        #~ text1 = pg.TextItem("test1", anchor=(1, 1))
+        #~ text2 = pg.TextItem("test2", anchor=(0.5, -1.0))
+        #~ self.TV.w_oscilo.plot.addItem(text1)
+        #~ self.TV.w_oscilo.plot.addItem(text2)
+        
+        text = QtGui.QLabel("Hello, World", self.TV.w_oscilo )
+        text.setStyleSheet('color: yellow')
+
+        
+        
         
         
         
@@ -126,6 +140,14 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.btn_1.setEnabled(True)
         self.btn_2.setEnabled(False)
         self.btn_3.setEnabled(False)
+        
+        
+        #~ x = 1.
+        #~ for i in range(9):
+            #~ x = x/10
+            #~ print x
+            #~ self.TV.w_oscilo.setWindowOpacity(x)
+            #~ time.sleep(1)
         
         ## Close Vol phase
         self.TV.close()

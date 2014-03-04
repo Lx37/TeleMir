@@ -11,7 +11,7 @@ TeleMir application - with fake devices
 #~ import gevent
 #~ import zmq.green as zmq
 
-#~ from PyQt4 import QtCore,QtGui
+from PyQt4 import QtCore,QtGui
 #~ from PyQt4.QtCore import QTimer
 
 #~ import zmq
@@ -66,7 +66,7 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.TC = TeleMir_Calibration()
         
         ## Read Mire on tv
-        media1 = Phonon.MediaSource('/home/mini/Projets/Pyacq_TeleMir_git/TeleMir/mire/Mire12.avi')
+        media1 = Phonon.MediaSource('/home/mini/Projets/Pyacq_TeleMir_git/mire/Mire25.avi')
         self.vp1 = Phonon.VideoPlayer()
         self.vp1.load(media1)
         self.vp1.play()
@@ -74,10 +74,12 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.vp1.move(1000,200)
         self.vp1.show()
         
+        media2 = Phonon.MediaSource('/home/mini/Projets/Pyacq_TeleMir_git/mire/Mire1.avi')
         self.vp2 = Phonon.VideoPlayer()
-        self.vp2.load(media1)
+        self.vp2.load(media2)
         self.vp2.play()
         self.vp2.show()
+        self.vp2.setWindowOpacity(0.2)
         
         
         self.btn_1.setEnabled(False)
