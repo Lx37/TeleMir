@@ -14,4 +14,5 @@ Divide in 2 parts:
 from .analyses import *
 from .fake_TeleMir_Calibration import Fake_TeleMir_Calibration
 from .fake_TeleMir_Vol import Fake_TeleMir_Vol
-#from .fake_TeleMir_Atterrissage import Fake_TeleMir_Atterrissage
+from .teleMir_Calibration import TeleMir_Calibration
+from .teleMir_Vol import TeleMir_Vol
