@@ -196,41 +196,25 @@ class GetFeatures():
                 
         # Norme contrib_alpha_smooth
         if (contrib_alpha_smooth > 0.1 and contrib_alpha_smooth < 0.4):
-<<<<<<< HEAD
             contrib_alpha_smooth_norm = (contrib_alpha_smooth - 0.1) * 600  # etrange * 50, *33
-=======
-            contrib_alpha_smooth_norm = (contrib_alpha_smooth - 0.1) * 500  # etrange * 50, *33
->>>>>>> c32cf81b46eb0a3dd688b127ea0ad9ebd6d82dd0
         else:
             if (contrib_alpha_smooth < 0.1):
                 contrib_alpha_smooth_norm = 0
             else:
                 print 'contrib_alpha_smooth :',contrib_alpha_smooth
                 contrib_alpha_smooth_norm = 100
-        
-<<<<<<< HEAD
-        if (contrib_beta_smooth > 0.06 and contrib_beta_smooth < 0.17):
+ 
+        if (contrib_beta_smooth > 0.06 and contrib_beta_smooth < 0.3):
             contrib_beta_smooth_norm = (contrib_beta_smooth - 0.06) * 500
         else:
             if (contrib_beta_smooth < 0.06):
-=======
-        if (contrib_beta_smooth > 0.06 and contrib_beta_smooth < 0.2):
-            contrib_beta_smooth_norm = (contrib_beta_smooth - 0.06) * 500
-        else:
-            if (contrib_beta_smooth < 0.1):
->>>>>>> c32cf81b46eb0a3dd688b127ea0ad9ebd6d82dd0
                 contrib_beta_smooth_norm = 0
             else:
                 print 'contrib_beta_smooth :',contrib_beta_smooth
                 contrib_beta_smooth_norm = 100
                 
-<<<<<<< HEAD
-        if (contrib_teta_smooth > 0.1 and contrib_teta_smooth < 0.5):
-            contrib_teta_smooth_norm = (contrib_teta_smooth - 0.1) * 200
-=======
-        if (contrib_teta_smooth > 0.06 and contrib_teta_smooth < 0.2):
+        if (contrib_teta_smooth > 0.1 and contrib_teta_smooth < 0.4):
             contrib_teta_smooth_norm = (contrib_teta_smooth - 0.06) * 500
->>>>>>> c32cf81b46eb0a3dd688b127ea0ad9ebd6d82dd0
         else:
             if (contrib_teta_smooth < 0.1):
                 contrib_teta_smooth_norm = 0
@@ -238,14 +222,10 @@ class GetFeatures():
                 print 'contrib_teta_smooth :',contrib_teta_smooth
                 contrib_teta_smooth_norm = 100
 
-        if (contrib_mu_smooth > 0.06 and contrib_mu_smooth < 0.2):
-            contrib_mu_smooth_norm = (contrib_mu_smooth - 0.06) * 500
+        if (contrib_mu_smooth > 0.1 and contrib_mu_smooth < 0.4):
+            contrib_mu_smooth_norm = (contrib_mu_smooth - 0.1) * 600
         else:
-<<<<<<< HEAD
-            if (contrib_mu_smooth < 0.06):
-=======
             if (contrib_mu_smooth < 0.1):
->>>>>>> c32cf81b46eb0a3dd688b127ea0ad9ebd6d82dd0
                 contrib_mu_smooth_norm = 0
             else:
                 print 'contrib_mu_smooth :',contrib_mu_smooth

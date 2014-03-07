@@ -44,19 +44,14 @@ def teleMir_CB():
     
     #~ filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
     #~ filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/caro/Emotiv Systems Pty Ltd  #SN201105160008862.raw'
-<<<<<<< HEAD
     #~ filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
     #~ filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008862.raw'
-    filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/new_alex/Emotiv Systems Pty Ltd #SN200709276578910.raw'
-    filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/new_alex/Emotiv Systems Pty Ltd #SN200709276578912.raw'
-    #~ filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/anneLise/Emotiv Systems Pty Ltd #SN200709276578910.raw'
-    #~ filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/anneLise/Emotiv Systems Pty Ltd #SN200709276578912.raw'
+    #~ filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/new_alex/Emotiv Systems Pty Ltd #SN200709276578910.raw'
+    #~ filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/new_alex/Emotiv Systems Pty Ltd #SN200709276578912.raw'
+    filename = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/anneLise/Emotiv Systems Pty Ltd #SN200709276578910.raw'
+    filenameXY = '/home/mi/Projets/pyacq_TeleMir/pyacq_emotiv_recording/anneLise/Emotiv Systems Pty Ltd #SN200709276578912.raw'
     
     
-=======
-    filename = '/home/mini/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
-    filenameXY = '/home/mini/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008862.raw'
->>>>>>> c32cf81b46eb0a3dd688b127ea0ad9ebd6d82dd0
     
     precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
     precomputedXY = np.fromfile(filenameXY , dtype = np.float32).reshape(-1, 2).transpose()
@@ -154,8 +149,6 @@ def teleMir_CB():
     # Stope and release the device
     fout.stop()
     fout.close()  
-    devXY.stop()
-    devXY.close()
     dev.stop()
     dev.close()
 
