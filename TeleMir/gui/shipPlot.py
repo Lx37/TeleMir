@@ -160,6 +160,15 @@ class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
                                   ) for i in range(self.nbCubes)]
 
         
+        #window option
+        self.setWindowTitle('Vaisseau')
+        #~ self.resize(1200, 1768)
+        #~ self.move(8057,0)
+        self.resize(800, 600)
+        self.move(6720, 0)
+        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
+        
+        
     def initPlots(self):
      #   self.setFixedSize(1600,1600)
         self.show()
@@ -174,9 +183,11 @@ class spaceShipLauncher(QtOpenGL.QGLWidget,GraphicsWorker):
 
         self.spaceShip.obj = OBJ('spaceFighter.obj', swapyz=True)
 
+        glViewport(0,0,800,600)
         glMatrixMode( GL_PROJECTION )
         glLoadIdentity( )
-        gluPerspective(70,640./480,1,250)
+        gluPerspective(75,800./600,1,250)
+        #gluPerspective(70,640./480,1,250)
         glEnable(GL_DEPTH_TEST)
         glMatrixMode(GL_MODELVIEW)
 

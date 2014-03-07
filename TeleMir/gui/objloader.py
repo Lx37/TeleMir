@@ -37,6 +37,8 @@ class OBJ:
         self.normals = []
         self.texcoords = []
         self.faces = []
+        
+        print 'filename :', filename
  
         material = None
         for line in open(filename, "r"):

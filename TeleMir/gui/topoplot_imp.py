@@ -22,7 +22,7 @@ import time
 import pyqtgraph.opengl as gl
 
 
-class Topoplot(QtGui.QWidget):
+class Topoplot_imp(QtGui.QWidget):
     def __init__(self, stream = None, parent = None, type_Topo = 'topo'):
         QtGui.QWidget.__init__(self, parent)
         
@@ -76,12 +76,12 @@ class Topoplot(QtGui.QWidget):
         self.mainlayout.addWidget(self.win)
         
         #window option
-        self.setWindowTitle('Topographie')
+        self.setWindowTitle('Impedances')
         #~ self.resize(1200, 1768)
         #~ self.move(7034, 0)
         self.resize(800, 600)
-        self.move(5920, 0)
-        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
+        self.move(0, 0)
+   
      
         # Set the sensor names
         self.setNameChan()
@@ -116,15 +116,7 @@ class Topoplot(QtGui.QWidget):
         
     def getChanMatrix(self):
         pos = (self.thread_pos.pos - 1)%self.half_size
-        
-        #~ if self.np_array.shape[1] > 128:
-            #~ meanchan = np.average(self.np_array[:,pos-128:pos], dim =1)
-            #~ dataChan = self.np_array[:,pos] - meanchan
-        #~ else:
-            #~ dataChan = self.np_array[:,pos]
-        
         dataChan = self.np_array[:,pos]
-        
         # commence en bas a gauche a (0,0), dim1 = g, dim2 = haut
         self.data[1,5] = dataChan[13]   # AF3
         self.data[4,5] = dataChan[9]     # AF4
