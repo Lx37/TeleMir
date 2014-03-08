@@ -23,7 +23,7 @@ def main():
     
 
     dev = EmotivMultiSignals(streamhandler = streamhandler)
-    dev.configure(buffer_length = 1800,) # doit être un multiple du packet size
+    dev.configure(buffer_length = 1800,device_path = '',) # doit être un multiple du packet size
     
     
     

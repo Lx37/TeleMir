@@ -50,6 +50,7 @@ class BarGraphItem(GraphicsObject):
         )
         self.setOpts(**opts)
         
+        
     def setOpts(self, **opts):
         self.opts.update(opts)
         self.picture = None
@@ -59,6 +60,11 @@ class BarGraphItem(GraphicsObject):
     def drawPicture(self):
         self.picture = QtGui.QPicture()
         p = QtGui.QPainter(self.picture)
+        
+                        #window option
+        #~ self.setWindowTitle('spectre')
+        #~ self.resize(500, 300)
+        #~ self.move(3580, 300)
         
         pen = self.opts['pen']
         pens = self.opts['pens']

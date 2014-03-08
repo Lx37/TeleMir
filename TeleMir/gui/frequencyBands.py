@@ -42,7 +42,15 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
 
         #Modes d'affichage
         self.colorMode=colorMode
-
+        
+        #window option
+        self.setWindowTitle('')
+        #self.resize(1014, 750)
+        self.resize(800, 600)
+        self.move(1920, 0)
+        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
+        self.show()
+        
     def initPlots(self):
         #Construction de l'axe des abscisses
         x0=self.bands[:,0]
@@ -70,6 +78,11 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
         v.addItem(p)
 
         self.nextRow()
+        
+        #window option
+        #~ self.setWindowTitle('Spectre')
+        #~ self.resize(1000, 600)
+        #~ self.move(4000, 0)
 
             
         for i in self.channels:

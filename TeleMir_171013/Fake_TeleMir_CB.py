@@ -7,8 +7,8 @@ python examples/test_osc_receive.py
 """
 
 from pyacq import StreamHandler, FakeMultiSignals
-from pyacq.gui import Oscilloscope, TimeFreq
-from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics, glSpaceShip
+from pyacq.gui import Oscilloscope, Oscilloscope_f, TimeFreq, TimeFreq2
+from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics, spaceShipLauncher, Topoplot_imp
 from TeleMir.gui import ScanningOscilloscope,SpectrumGraphics
 from TeleMir.analyses import TransmitFeatures
 #from TeleMir.example import test_osc_receive
@@ -16,7 +16,7 @@ from TeleMir.analyses import TransmitFeatures
 import msgpack
 #~ import gevent
 #~ import zmq.green as zmq
-
+ 
 from PyQt4 import QtCore,QtGui
 #from multiprocessing import Process
 
@@ -42,9 +42,9 @@ def teleMir_CB():
     #~ dev.initialize()
     #~ dev.start()
     
-    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-19 16:20:36.580141_Alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
-    #filename = '/home/mini/pyacq_emotiv_recording/rec 2013-09-18 14:12:09.347990_Caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
-    filename = '/home/mini/pyacq_emotiv_recording/simple_blink/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    filename = '/home/ran/Projets/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
+    #filename = '/home/ran/Projets/pyacq_emotiv_recording/caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    #filename = '/home/mini/pyacq_emotiv_recording/simple_blink/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
     
     precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
     
@@ -76,48 +76,85 @@ def teleMir_CB():
     #Osc server
     #p = Process(target=., args=('bob',))
     
+    #color = 'summer'
+    # Bleu
+    #color = 'jet'
+    # Rouge
+    color = 'hot'
+    # vert/jaune
+    #color = 'summer'
     
     app = QtGui.QApplication([])
     
+        
     # Impedances
-    #~ w_imp=Topoplot(stream = dev.streams[0], type_Topo= 'imp')
-    #~ w_imp.show()
+    w_imp=Topoplot_imp(stream = dev.streams[0], type_Topo= 'imp')
+    w_imp.show()
+    
+    # freqbands 
+    w_sp_bd=freqBandsGraphics(stream = dev.streams[0], interval_length = 3., channels = [12])
+    w_sp_bd.run()  
     
     # signal
     w_oscilo=Oscilloscope(stream = dev.streams[0])
     w_oscilo.show()
-    w_oscilo.auto_gain_and_offset(mode = 1)
     w_oscilo.set_params(xsize = 10, mode = 'scroll')
+    w_oscilo.auto_gain_and_offset(mode = 2)
+    w_oscilo.gain_zoom(100)
+    #w_oscilo.set_params(colors = 'jet')
+    select_chan = np.ones(14, dtype = bool)
+    w_oscilo.automatic_color(cmap_name = 'jet', selected = select_chan)
     
-    # temps frequence
+    # parametres
+    w_feat1=Oscilloscope_f(stream = fout.streams[0])
+    w_feat1.show()
+    w_feat1.set_params(colormap = color)
+    #w_feat1.auto_gain_and_offset(mode = 1)
+    #w_feat1.set_params(xsize = 10, mode = 'scroll')
+    select_feat = np.ones(4, dtype = bool)
+   # print select
+    #w_oscilo.set_params(colormap = 'automn',  selected = select)
+    w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
+    w_feat1.showFullScreen()
+    
+    w_feat1.set_params(xsize = 10, mode = 'scroll')
+    select_feat = np.ones(4, dtype = bool)
+    w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
+    
+    
+    # topographie
+    w_topo=Topoplot(stream = dev.streams[0], type_Topo= 'topo')
+    w_topo.show()
+    
+    # temps frequence 1
     w_Tf=TimeFreq(stream = dev.streams[0])
     w_Tf.show()  
     w_Tf.set_params(xsize = 10)
     w_Tf.change_param_tfr(f_stop = 45, f0 = 1)
+    w_Tf.set_params(colormap = color)
+    #w_Tf.clim_changed(20)
     #w_Tf.change_param_channel(clim = 20)
+    
+    # temps frequence 2
+    w_Tf2=TimeFreq2(stream = dev.streams[0])
+    w_Tf2.show()  
+    w_Tf2.set_params(xsize = 10)
+    w_Tf2.change_param_tfr(f_stop = 45, f0 = 1)
+    w_Tf2.set_params(colormap = color)
+    
     
     # kurtosis 
     #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
     #w_ku.run()  
-    
-    # freqbands 
-    w_sp_bd=freqBandsGraphics(stream = dev.streams[0], interval_length = 3., channels = [11,12])
-    w_sp_bd.run()  
     
     ## Bien moins fluide
     # Spectre
     #~ w_sp=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
     #~ w_sp.run()
     
-    w_feat1=Oscilloscope(stream = fout.streams[0])
-    w_feat1.show()
-    w_feat1.set_params(xsize = 10, mode = 'scroll')
-    
-    #w1 = glSpaceShip(dev.streams[0])
-    #w1.run()
-    #w1.showFullScreen()
-    
-       
+    w1 = spaceShipLauncher(dev.streams[0])
+    w1.run()
+    w1.showFullScreen()
     
     app.exec_()
     

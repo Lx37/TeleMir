@@ -62,7 +62,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.extractor = GetFeatures.GetFeatures(stream_in)
         
         ## OSC socket
-        self.oscIP = '127.0.0.1'
+        self.oscIP = '192.168.0.27'
         self.oscPort = 9001
         self.oscClient = OSC.OSCClient()
         self.oscMsg = OSC.OSCMessage() 
@@ -130,6 +130,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         
         # Wait for input entries
         time.sleep(0.5)
+        print self.thread_pos.pos
         self.last_head = (self.thread_pos.pos)%self.half_size_in
         self.last_head2 = self.last_head
         print 'first last head : ', self.last_head 
@@ -184,7 +185,7 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.socket_out.send(msgpack.dumps(self.abs_pos))
         
         #send OSC
-        #self.sendOSC(features)
+        self.sendOSC(features)
         
         t_out = time.time()
         

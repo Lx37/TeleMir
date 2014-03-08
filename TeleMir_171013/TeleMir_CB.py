@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 Topoplot example
+
+ca marche pas terrible tout ca
 """
 
 from pyacq import StreamHandler, EmotivMultiSignals
-from pyacq.gui import Oscilloscope, TimeFreq
-from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics
+from pyacq.gui import Oscilloscope, Oscilloscope_f, TimeFreq, TimeFreq2
+from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics, spaceShipLauncher, Topoplot_imp
+from TeleMir.gui import ScanningOscilloscope,SpectrumGraphics
+from TeleMir.analyses import TransmitFeatures
 
 import msgpack
 #~ import gevent
@@ -16,7 +20,7 @@ from PyQt4 import QtCore,QtGui
 import zmq
 import msgpack
 import time
-from TeleMir.analyses import TransmitFeatures
+import numpy as np
 
 def teleMir_CB():
     streamhandler = StreamHandler()
@@ -32,7 +36,7 @@ def teleMir_CB():
     fout = TransmitFeatures(streamhandler = streamhandler)
     fout.configure(# name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 21,
+                                nb_feature = 4,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,
@@ -40,40 +44,64 @@ def teleMir_CB():
                                 )
     fout.initialize(stream_in = dev.streams[0]) 
     fout.start()
-    
+
+    # 1 : Rouge
+    #~ color = 'hot'
+    # 2 : vert/jaune
+    #~ color = 'summer'
+    # 3 : Bleu
+    color = 'jet'
     
     app = QtGui.QApplication([])
-    #w0=Topoplot(stream = dev.streams[0], type_Topo = 'topo')
-    #w0.show()
     
     # Impedances
-    w_imp=Topoplot(stream = dev.streams[1], type_Topo = 'imp')
+    w_imp=Topoplot_imp(stream = dev.streams[1], type_Topo= 'imp')
     w_imp.show()
-    w_imp2=Oscilloscope(stream = dev.streams[1])
-    w_imp2.show()
     
-    #~ # signal
-    #~ w_oscilo=Oscilloscope(stream = dev.streams[0])
-    #~ w_oscilo.show()
-    
-    # temps frequence
-    #w_Tf=TimeFreq(stream = dev.streams[0])
-    #w_Tf.show()  
-    
-    # kurtosis 
-    #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
-    #w_ku.run()  
     
     # freqbands 
-    #w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [11,12])
-    #w_sp.run()  
-        
-    #w_feat1=Oscilloscope(stream = fout.streams[0])
-    #w_feat1.show()
-    #w_feat2=Oscilloscope(stream = fout.streams[0])
-    #w_feat2.show()
-    #w_feat3=Oscilloscope(stream = fout.streams[0])
-    #w_feat3.show()
+    w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [12])
+    w_sp.run()  
+    
+    #spaceship
+    w_spsh=spaceShipLauncher(dev.streams[2], cubeColor = color)
+    w_spsh.run()
+
+    # signal
+    w_oscilo=Oscilloscope(stream = dev.streams[0])
+    w_oscilo.show()
+    w_oscilo.auto_gain_and_offset(mode = 2)
+    #w_oscilo.gain_zoom(10)
+    w_oscilo.set_params(xsize = 10, mode = 'scroll')
+    select_chan = np.ones(14, dtype = bool)
+    w_oscilo.automatic_color(cmap_name = 'jet', selected = select_chan)
+    
+    # parametres
+    w_feat1=Oscilloscope_f(stream = fout.streams[0])
+    w_feat1.show()
+    w_feat1.set_params(xsize = 10, mode = 'scroll')
+    select_feat = np.ones(4, dtype = bool)
+    w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
+    
+    #topographie
+    w_topo=Topoplot(stream = dev.streams[0], type_Topo = 'topo')
+    w_topo.show()
+    
+    # temps frequence 1
+    w_Tf1=TimeFreq(stream = dev.streams[0])
+    w_Tf1.show()  
+    w_Tf1.set_params(xsize = 10)
+    w_Tf1.set_params(colormap = color)
+    w_Tf1.change_param_tfr(f_stop = 45, f0 = 1)
+    
+    
+    # temps frequence 2
+    w_Tf2=TimeFreq2(stream = dev.streams[0])
+    w_Tf2.show()  
+    w_Tf2.set_params(xsize = 10)
+    w_Tf2.change_param_tfr(f_stop = 45, f0 = 1)
+    w_Tf2.set_params(colormap = color)
+    
     
     app.exec_()
     

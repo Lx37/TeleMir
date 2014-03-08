@@ -52,6 +52,11 @@ class SpectrumGraphics(pw.PyQtGraphicsWorker):
         self.stackLen=100
         self.lastResults={}
         self.posLastResult=0
+        
+        #window option
+        self.setWindowTitle('spectre')
+        self.resize(500, 300)
+        self.move(3580, 300)
 
             #Modes d'affichage
         self.colorMode=colorMode

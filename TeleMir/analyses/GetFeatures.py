@@ -22,7 +22,7 @@ class GetFeatures():
     def __init__(self,stream_in, name = 'test'):
         
         self.name = name
-        self.nb_features = 9
+        self.nb_features = 4
         self.features = np.zeros((self.nb_features,1),dtype=np.float)
         self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','AF3'] 
         self.nb_chan = 14
@@ -61,17 +61,17 @@ class GetFeatures():
             print 'self.nFreqMax', self.nFreqMax
         
         #Kurto
-        self.kurtos = np.zeros((self.nb_chan), dtype = np.float)
-        
-        #Entrpy
-        #self.entropy = np.zeros((self.nb_chan,self.nb_chan), dtype = np.float)
+        #self.kurtos = np.zeros((self.nb_chan), dtype = np.float)
         
         #Moyennes glissantes et cumulées
-        #self.contrib_alpha_cumul = []
+        self.contrib_alpha_cumul = []
         self.alpha_cumul = []
         self.id_new_cumul = 0
         self.Xsmooth =30
-        self.alpha_cumul_th = 200000#1000000
+        #~ self.alpha_cumul_th = 200000#1000000
+        #~ self.id_alpha_cumul = 0
+        self.contrib_alpha_cumul_th = 50 # 10
+        self.id_contrib_alpha_cumul = 0
         
         mean = 0
         variance = 50
@@ -83,7 +83,7 @@ class GetFeatures():
         self.blink_invProj = np.linalg.inv(blink_proj)
         self.n_blink_comp = 2
         self.last_blink = 0    
-        self.blink_threshold = 0.05
+        self.blink_threshold = 0.05#5
         
     def extract_TCL(self, data):
         
@@ -97,63 +97,101 @@ class GetFeatures():
         
         #pDeltaP7P8 = (self.pows[3,0] + self.pows[8,0])/2
         #~ pThetaAF34F34 = (self.pows2[9,1] + self.pows2[13,1] + self.pows2[0,1] + self.pows2[1,1])/2
-        #~ pAlphaO12 = (self.pows2[11,2] + self.pows2[12,2])/2
+        pAlphaO12 = (self.pows[11,2] + self.pows[12,2])/2
+        total_power_O1O2 =  np.sum(self.pows[11,:], axis=0) + np.sum(self.pows[12,:], axis=0)
         #~ pBetaF34 = (self.pows2[0,3] + self.pows2[1,3])/2
         #pGammaFC56 = (self.pows[4,4] + self.pows[9,4])/2
         #pMuT78 = (self.pows[7,5] + self.pows[11,5])/2
         
-        #contrib_alpha = bandsAv[2]/total_power
-        #self.contrib_alpha_cumul.append(contrib_alpha)
-        #contrib_alpha_cumul = np.sum(self.contrib_alpha_cumul)
-        self.alpha_cumul.append( bandsAv[2])
-        alpha_cumul = np.sum(self.alpha_cumul[self.id_new_cumul:])
         
-        if (alpha_cumul > self.alpha_cumul_th):
-            print alpha_cumul
-            self.id_new_cumul = len(self.alpha_cumul)
-            print self.id_new_cumul 
-            alpha_cumul = 0
+        #contribution alpha
+        contrib_alpha = bandsAv[2]/total_power
+        self.contrib_alpha_cumul.append(contrib_alpha)
+        contrib_alpha_cumul = np.sum(self.contrib_alpha_cumul[self.id_new_cumul:])
+        #~ self.id_contrib_alpha_cumul = 0
         
+        #alpha 
+        #~ self.alpha_cumul.append(bandsAv[2])
+        #~ alpha_cumul = np.sum(self.alpha_cumul[self.id_new_cumul:])
+        #~ self.id_alpha_cumul = 0 ## a enlever
         
-        if len(self.alpha_cumul) > self.Xsmooth:
-            #contrib_alpha_smooth = np.average(self.contrib_alpha_cumul[-self.Xsmooth:])
-            alpha_smooth = np.average(self.alpha_cumul[-self.Xsmooth:])
-        else:
-            #contrib_alpha_smooth = np.average(self.contrib_alpha_cumul)
-            alpha_smooth = np.average(self.alpha_cumul)
-        
-        # Norme
-        if (alpha_smooth > 100 and alpha_smooth < 1000):
-            alpha_smooth_norm = (alpha_smooth - 100) / 9.9 
-        else:
-            if (alpha_smooth < 100):
-                alpha_smooth_norm = 0
-            else:
-                alpha_smooth_norm = 100
-
+        # contribution alpha cumul
+        if (contrib_alpha_cumul > self.contrib_alpha_cumul_th):
+            #~ print alpha_cumul
+            self.id_new_cumul = len(self.contrib_alpha_cumul)
+            #~ print self.id_new_cumul 
+            contrib_alpha_cumul = 0
+            self.id_contrib_alpha_cumul = self.id_contrib_alpha_cumul +1
             
-        # Ratios
-        #~ R1 = (bandsAv2[0]*bandsAv2[2]) / (bandsAv2[3]*bandsAv2[4])  #delta.alpha / beta.gamma
-        #~ R2 = (bandsAv2[1]*bandsAv2[1]) / (bandsAv2[3]*bandsAv2[4]) # theta ² / beta.gamma
-        #~ R3 = (bandsAv2[1] + bandsAv2[2] + bandsAv2[3]) / total_power # (theta + alpha + beta)/ total power
-        #~ R5 = bandsAv2[2] * bandsAv2[1] # alpha.theta
-        #~ R6 = bandsAv2[1] / bandsAv2[0] #theta / delta
-        #~ R7 = (bandsAv2[1] + bandsAv2[2]) / bandsAv2[0] #(theta + alpha) / delta
-        #~ R8 = (bandsAv2[0] + bandsAv2[2]) / (bandsAv2[0]*bandsAv2[0]) #(delta + alpha) / delta²
-        #~ R9 = (bandsAv2[0] + bandsAv2[2] + bandsAv2[3]) / (bandsAv2[0]*bandsAv2[0]*bandsAv2[0]) #(delta + alpha) / delta³
+        if self.id_contrib_alpha_cumul > 8:
+            self.id_contrib_alpha_cumul = 0
         
-        #~ meanKurto = np.average(self.kurtos, axis = 0)
+        #~ # alpha cumul
+        #~ if (alpha_cumul > self.alpha_cumul_th):
+            #~ print alpha_cumul
+            #~ self.id_new_cumul = len(self.alpha_cumul)
+            #~ print self.id_new_cumul 
+            #~ alpha_cumul = 0
+            #~ self.id_alpha_cumul = self.id_alpha_cumul +1
+            
+        #~ if self.id_alpha_cumul > 8:
+            #~ self.id_alpha_cumul = 0
         
-        #features = np.array([bandsAv[0], bandsAv[1], bandsAv[2], bandsAv[3] , bandsAv[4], bandsAv[5], bandsAv2[0], bandsAv2[1], bandsAv2[2], bandsAv2[3],bandsAv2[4], bandsAv2[5]])
-        #features = np.array([bandsAv2[0], bandsAv2[1], bandsAv2[2], bandsAv2[3],bandsAv2[4], bandsAv2[5], pAlphaO12, alpha_cumul, alpha_smooth,alpha_smooth2, pThetaAF34F34, pBetaF34, R1, R2, R3, R5, R6, R7, R8, R9,  meanKurto])
-        features = np.array([alpha_smooth_norm,alpha_cumul, blink_feat, crisp_feat])
+        
+        if len(self.contrib_alpha_cumul) > self.Xsmooth:
+            contrib_alpha_smooth = np.average(self.contrib_alpha_cumul[-self.Xsmooth:])
+            #alpha_smooth = np.average(self.alpha_cumul[-self.Xsmooth:])
+        else:
+            contrib_alpha_smooth = np.average(self.contrib_alpha_cumul)
+            #alpha_smooth = np.average(self.alpha_cumul)
+        
+        #~ # Norme alpha_smooth
+        #~ if (alpha_smooth > 100 and alpha_smooth < 1000):
+            #~ alpha_smooth_norm = (alpha_smooth - 100) / 9.9 
+        #~ else:
+            #~ if (alpha_smooth < 100):
+                #~ alpha_smooth_norm = 0
+            #~ else:
+                #~ alpha_smooth_norm = 100
+                
+        # Norme contrib_alpha_smooth
+        if (contrib_alpha_smooth > 0 and contrib_alpha_smooth < 0.4): #0.4
+            contrib_alpha_smooth_norm = contrib_alpha_smooth * 30 #25
+        else:
+            if (contrib_alpha_smooth < 0):
+                contrib_alpha_smooth_norm = 0
+            else:
+                contrib_alpha_smooth_norm = 10
+        
+        #crispation
+        if total_power < 2000:
+            crisp_feat = 0
+        else:
+            if total_power < 4000:
+                crisp_feat = 1
+            else:
+                if total_power < 5000:
+                    crisp_feat = 2
+                else:
+                    if total_power < 6000:
+                        crisp_feat = 3
+                    else:
+                        crisp_feat = 4
+                        
+        if contrib_alpha_smooth_norm>6:
+            blink_feat =0
+        
+        features = np.array([contrib_alpha_smooth_norm,self.id_contrib_alpha_cumul, blink_feat, crisp_feat])
+        
         
         return features
     
     def is_blink(self, head):
 
-        # sur combien de points  ? ici 64
-        data = self.np_arr_in[:, head+self.half_size_in - 2*self.nb_pts : head+self.half_size_in]
+        # sur combien de points  ? ici 64 ??
+        #data = self.np_arr_in[:, head+self.half_size_in - 2*self.nb_pts : head+self.half_size_in]
+        data = self.np_arr_in[:, head+self.half_size_in - self.nb_pts : head+self.half_size_in]
+        
         
         data = np.transpose(data) 
         data_rect = data - np.mean(data, axis = 0)
@@ -161,9 +199,10 @@ class GetFeatures():
         
         #~ temp_comp = np.dot( self.blink_invProj, data)
         #~ isBlink = np.mean(temp_comp[self.n_blink_comp,:])
+
         
-        blink_comp = np.dot( self.blink_invProj[self.n_blink_comp], data_rect[:,-10])
-        
+        blink_comp = np.dot( self.blink_invProj[self.n_blink_comp], data_rect[:,data_rect.shape[1]-15:data_rect.shape[1]]) 
+        #data_rect[:,data_rect.shape[1]-10:data_rect.shape[1]]
         
         
         if np.mean(blink_comp) > self.blink_threshold and self.lastBlink < self.blink_threshold:
@@ -210,7 +249,7 @@ class GetFeatures():
             #calcul des puissances par bandes
             self.pows[i]=self.bands_power(spectrum)
             # Kurtosis
-            self.kurtos[i]=sc.stats.kurtosis(data[i])
+           # self.kurtos[i]=sc.stats.kurtosis(data[i])
             
             #Entropy
             #if i!=self.channels.length
