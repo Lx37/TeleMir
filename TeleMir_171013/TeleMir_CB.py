@@ -16,6 +16,7 @@ import msgpack
 #~ import zmq.green as zmq
 
 from PyQt4 import QtCore,QtGui
+from PyQt4.QtCore import QTimer
 
 import zmq
 import msgpack
@@ -36,13 +37,13 @@ def teleMir_CB():
     fout = TransmitFeatures(streamhandler = streamhandler)
     fout.configure(# name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 4,
+                                nb_feature = 6,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,
                                 packet_size = 1,
                                 )
-    fout.initialize(stream_in = dev.streams[0]) 
+    fout.initialize(stream_in = dev.streams[0], stream_xy = dev.streams[2]) 
     fout.start()
 
     # 1 : Rouge
@@ -57,7 +58,6 @@ def teleMir_CB():
     # Impedances
     w_imp=Topoplot_imp(stream = dev.streams[1], type_Topo= 'imp')
     w_imp.show()
-    
     
     # freqbands 
     w_sp=freqBandsGraphics(stream = dev.streams[0], interval_length = 1., channels = [12])
@@ -103,7 +103,13 @@ def teleMir_CB():
     w_Tf2.set_params(colormap = color)
     
     
+    timer = QTimer()
+    timer.setInterval(3000) # 5 seconds
+    timer.start()
+    timer.timeout.connect(app.quit)
+    
     app.exec_()
+    #app.startTimer(2000)
     
     # Stope and release the device
     fout.stop()
@@ -114,4 +120,12 @@ def teleMir_CB():
 
 
 if __name__ == '__main__':
+    
     teleMir_CB()
+    
+    print "suivant"
+
+
+
+
+

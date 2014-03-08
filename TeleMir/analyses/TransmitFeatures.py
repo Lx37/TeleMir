@@ -50,11 +50,12 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.__dict__.update(self.params)
         self.configured = True
 
-    def initialize(self, stream_in):
+    def initialize(self, stream_in, stream_xy):
         ## Feature stuff
         #self.feature_names = ['DeltaMean','ThetaMean','AlphaMean','BetaMean','GammaMean','MuMean', 'DeltaMean2','ThetaMean2','AlphaMean2','BetaMean2','GammaMean2','MuMean2']
         #self.feature_names = ['DeltaMean2','ThetaMean2','AlphaMean2','BetaMean2','GammaMean2','MuMean2', 'pAlphaO12', 'alpha_cumul', 'alpha_smooth', 'alpha_smooth2', 'pThetaAF34F34', 'pBetaF34', 'R1', 'R2', 'R3', 'R5', 'R6', 'R7', 'R8', 'R9', 'meanKurto']
-        self.feature_names = ['alpha_smooth', 'alpha_cumul', 'blink', 'Cristpation']
+        #self.feature_names = ['alpha_smooth', 'alpha_cumul', 'blink', 'Cristpation']
+        self.feature_names = ['alpha_smooth','blink', 'Cristpation', 'Beta_contrib', 'Teta_contrib', 'Mu_contrib']
         self.feature_indexes = np.arange(self.nb_feature)
         self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','AF3'] 
         self.channel_indexes = range(self.nb_channel) 
@@ -62,14 +63,18 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.extractor = GetFeatures.GetFeatures(stream_in)
         
         ## OSC socket
-        self.oscIP = '192.168.0.27'
+        #self.oscIP = '192.168.0.27'   # moi : 37.0.0.100
+        self.oscIP = '37.0.0.104'  # je
         self.oscPort = 9001
         self.oscClient = OSC.OSCClient()
         self.oscMsg = OSC.OSCMessage() 
-        self.oscMsg .setAddress("/EEGfeat") 
+        self.oscMsg.setAddress("/EEGfeat") 
+        self.oscMsgXY = OSC.OSCMessage() 
+        self.oscMsgXY.setAddress("/GyroXY") 
         
         ## Stream In 
         self.stream_in = stream_in
+        self.stream_xy = stream_xy
         
         ## Socket In (SUB)
         self.context = zmq.Context()
@@ -77,10 +82,14 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.socket_in.setsockopt(zmq.SUBSCRIBE,'')
         self.socket_in.connect("tcp://localhost:{}".format(self.stream_in['port']))
         
+        ## Data flux
         self.np_arr_in = self.stream_in['shared_array'].to_numpy_array()
         self.half_size_in = self.np_arr_in.shape[1]/2
         self.sr_in = self.stream_in['sampling_rate']
         self.packet_size_in = self.stream_in['packet_size']
+        
+        ##XY flux
+        self.np_arr_xy = self.stream_xy['shared_array'].to_numpy_array()
         
         self.thread_pos = RecvPosThread(socket = self.socket_in, port = self.stream_in['port'])
         self.thread_pos.start()
@@ -185,7 +194,12 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         self.socket_out.send(msgpack.dumps(self.abs_pos))
         
         #send OSC
-        self.sendOSC(features)
+        #print "paquet send"
+        self.sendOSC(features, self.oscPort)
+        
+        # gyro data
+        dataxy =  self.np_arr_xy[:, head+half_size_in] 
+        self.sendOSC(dataxy, 9002)
         
         t_out = time.time()
         
@@ -199,10 +213,10 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
             #self.stop()
         time.sleep(1/self.sr_out)
 
-    def sendOSC(self,features):
+    def sendOSC(self,features, port):
         
         self.oscMsg.append(features)
-        self.oscClient.sendto(self.oscMsg, (self.oscIP, self.oscPort))
+        self.oscClient.sendto(self.oscMsg, (self.oscIP, port))
         self.oscMsg.clearData()
         
         #try:
@@ -212,6 +226,12 @@ class TransmitFeatures(DeviceBase):#, QtGui.QWidget):
         #pass
         
       ## For simple stream transmetter
+    
+    def sendOSCxy(self,dataxy):
+        print "msgsend"
+        self.oscMsg.append(dataxy)
+        self.oscClient.sendto(self.oscMsgXY, (self.oscIP, 9002))
+        self.oscMsg.clearData()
     
     def simple_copy_and_transmit(self):
         

@@ -7,8 +7,13 @@ python examples/test_osc_receive.py
 """
 
 from pyacq import StreamHandler, FakeMultiSignals
+<<<<<<< HEAD
 from pyacq.gui import Oscilloscope, Oscilloscope_f, TimeFreq, TimeFreq2
 from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics, spaceShipLauncher, Topoplot_imp
+=======
+from pyacq.gui import Oscilloscope, TimeFreq
+from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics#, glSpaceShip
+>>>>>>> 0cf8bb553fbacac39f81d79e80b3550daed305d8
 from TeleMir.gui import ScanningOscilloscope,SpectrumGraphics
 from TeleMir.analyses import TransmitFeatures
 #from TeleMir.example import test_osc_receive
@@ -42,11 +47,14 @@ def teleMir_CB():
     #~ dev.initialize()
     #~ dev.start()
     
+
     filename = '/home/ran/Projets/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
     #filename = '/home/ran/Projets/pyacq_emotiv_recording/caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
     #filename = '/home/mini/pyacq_emotiv_recording/simple_blink/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+
     
     precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
+    precomputedXY = np.fromfile(filenameXY , dtype = np.float32).reshape(-1, 2).transpose()
     
     # Configure and start
     dev = FakeMultiSignals(streamhandler = streamhandler)
@@ -60,17 +68,29 @@ def teleMir_CB():
     dev.initialize()
     dev.start()
     
+    # Configure and start
+    devXY = FakeMultiSignals(streamhandler = streamhandler)
+    devXY.configure( #name = 'Test dev',
+                                nb_channel = 2,
+                                sampling_rate =128.,
+                                buffer_length = 30.,
+                                packet_size = 1,
+                                precomputed = precomputedXY,
+                                )
+    devXY.initialize()
+    devXY.start()
+    
      ## Configure and start output stream (for extracted feature)
     fout = TransmitFeatures(streamhandler = streamhandler)
     fout.configure( #name = 'Test fout',
                                 nb_channel = 14, # np.array([1:5])
-                                nb_feature = 4,
+                                nb_feature = 6,
                                 nb_pts = 128,
                                 sampling_rate =10.,
                                 buffer_length = 10.,
                                 packet_size = 1,
                                 )
-    fout.initialize(stream_in = dev.streams[0]) 
+    fout.initialize(stream_in = dev.streams[0], stream_xy = devXY.streams[0]) 
     fout.start()
     
     #Osc server
@@ -127,6 +147,7 @@ def teleMir_CB():
     w_topo.show()
     
     # temps frequence 1
+
     w_Tf=TimeFreq(stream = dev.streams[0])
     w_Tf.show()  
     w_Tf.set_params(xsize = 10)
@@ -147,6 +168,7 @@ def teleMir_CB():
     #w_ku=KurtosisGraphics(stream = dev.streams[0], interval_length = 1.)
     #w_ku.run()  
     
+
     ## Bien moins fluide
     # Spectre
     #~ w_sp=SpectrumGraphics(dev.streams[0],3.,channels=[11,12])
@@ -155,6 +177,7 @@ def teleMir_CB():
     w1 = spaceShipLauncher(dev.streams[0])
     w1.run()
     w1.showFullScreen()
+
     
     app.exec_()
     
