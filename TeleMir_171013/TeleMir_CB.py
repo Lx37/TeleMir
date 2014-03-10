@@ -64,8 +64,8 @@ def teleMir_CB():
     w_sp.run()  
     
     #spaceship
-    w_spsh=spaceShipLauncher(dev.streams[2], cubeColor = color)
-    w_spsh.run()
+    #~ w_spsh=spaceShipLauncher(dev.streams[2], cubeColor = color)
+    #~ w_spsh.run()
 
     # signal
     w_oscilo=Oscilloscope(stream = dev.streams[0])
@@ -80,7 +80,7 @@ def teleMir_CB():
     w_feat1=Oscilloscope_f(stream = fout.streams[0])
     w_feat1.show()
     w_feat1.set_params(xsize = 10, mode = 'scroll')
-    select_feat = np.ones(4, dtype = bool)
+    select_feat = np.ones(6, dtype = bool)
     w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
     
     #topographie
@@ -103,10 +103,10 @@ def teleMir_CB():
     w_Tf2.set_params(colormap = color)
     
     
-    timer = QTimer()
-    timer.setInterval(3000) # 5 seconds
-    timer.start()
-    timer.timeout.connect(app.quit)
+    #~ timer = QTimer()
+    #~ timer.setInterval(3000) # 5 seconds
+    #~ timer.start()
+    #~ timer.timeout.connect(app.quit)
     
     app.exec_()
     #app.startTimer(2000)

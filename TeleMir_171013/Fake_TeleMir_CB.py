@@ -7,13 +7,10 @@ python examples/test_osc_receive.py
 """
 
 from pyacq import StreamHandler, FakeMultiSignals
-<<<<<<< HEAD
+
 from pyacq.gui import Oscilloscope, Oscilloscope_f, TimeFreq, TimeFreq2
 from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics, spaceShipLauncher, Topoplot_imp
-=======
-from pyacq.gui import Oscilloscope, TimeFreq
-from TeleMir.gui import Topoplot, KurtosisGraphics, freqBandsGraphics#, glSpaceShip
->>>>>>> 0cf8bb553fbacac39f81d79e80b3550daed305d8
+
 from TeleMir.gui import ScanningOscilloscope,SpectrumGraphics
 from TeleMir.analyses import TransmitFeatures
 #from TeleMir.example import test_osc_receive
@@ -51,12 +48,16 @@ def teleMir_CB():
     filename = '/home/ran/Projets/pyacq_emotiv_recording/alex/Emotiv Systems Pty Ltd #SN201105160008860.raw'
     #filename = '/home/ran/Projets/pyacq_emotiv_recording/caro/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
     #filename = '/home/mini/pyacq_emotiv_recording/simple_blink/Emotiv Systems Pty Ltd  #SN201105160008860.raw'
+    filenameImp = '/home/ran/Projets/EEG_recordings/anneLise/Emotiv Systems Pty Ltd #SN200709276578911.raw'
+    filenameXY = '/home/ran/Projets/EEG_recordings/anneLise/Emotiv Systems Pty Ltd #SN200709276578912.raw'
 
     
     precomputed = np.fromfile(filename , dtype = np.float32).reshape(-1, 14).transpose()
+    precomputedImp = np.fromfile(filenameImp , dtype = np.float32).reshape(-1, 14).transpose()
     precomputedXY = np.fromfile(filenameXY , dtype = np.float32).reshape(-1, 2).transpose()
     
-    # Configure and start
+    
+    # Configure and start signal
     dev = FakeMultiSignals(streamhandler = streamhandler)
     dev.configure( #name = 'Test dev',
                                 nb_channel = 14,
@@ -68,7 +69,19 @@ def teleMir_CB():
     dev.initialize()
     dev.start()
     
-    # Configure and start
+    #~ # Configure and start imp
+    #~ devImp = FakeMultiSignals(streamhandler = streamhandler)
+    #~ devImp.configure( #name = 'Test dev',
+                                #~ nb_channel = 14,
+                                #~ sampling_rate =128.,
+                                #~ buffer_length = 30.,
+                                #~ packet_size = 1,
+                                #~ precomputed = precomputedImp,
+                                #~ )
+    #~ devImp.initialize()
+    #~ devImp.start()
+    
+    # Configure and start gyroXY
     devXY = FakeMultiSignals(streamhandler = streamhandler)
     devXY.configure( #name = 'Test dev',
                                 nb_channel = 2,
@@ -131,15 +144,15 @@ def teleMir_CB():
     w_feat1.set_params(colormap = color)
     #w_feat1.auto_gain_and_offset(mode = 1)
     #w_feat1.set_params(xsize = 10, mode = 'scroll')
-    select_feat = np.ones(4, dtype = bool)
-   # print select
-    #w_oscilo.set_params(colormap = 'automn',  selected = select)
-    w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
+    #~ select_feat = np.ones(6, dtype = bool)
+   #~ # print select
+    #~ #w_oscilo.set_params(colormap = 'automn',  selected = select)
+    #~ w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
     w_feat1.showFullScreen()
     
     w_feat1.set_params(xsize = 10, mode = 'scroll')
-    select_feat = np.ones(4, dtype = bool)
-    w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
+    #~ select_feat = np.ones(4, dtype = bool)
+    #~ w_feat1.automatic_color(cmap_name = 'jet', selected = select_feat)
     
     
     # topographie
@@ -184,10 +197,16 @@ def teleMir_CB():
     # Stope and release the device
     fout.stop()
     fout.close()  
+    print 'ici'
     dev.stop()
     dev.close()
-
-
+    print 'ici'
+    devXY.stop()
+    devXY.close()
+    print 'ici'
+    devImp.stop()
+    devImp.close()
+    print 'ici'
 
 if __name__ == '__main__':
     teleMir_CB()

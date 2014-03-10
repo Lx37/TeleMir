@@ -22,7 +22,7 @@ class GetFeatures():
     def __init__(self,stream_in, name = 'test'):
         
         self.name = name
-        self.nb_features = 4
+        self.nb_features = 6
         self.features = np.zeros((self.nb_features,1),dtype=np.float)
         self.channel_names = [ 'F3', 'F4', 'P7', 'FC6', 'F7', 'F8','T7','P8','FC5','AF4','T8','O2','O1','AF3'] 
         self.nb_chan = 14

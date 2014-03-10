@@ -80,7 +80,7 @@ class Topoplot(QtGui.QWidget):
         #~ self.resize(1200, 1768)
         #~ self.move(7034, 0)
         self.resize(800, 600)
-        self.move(5920, 0)
+        #~ self.move(5920, 0)
         self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
      
         # Set the sensor names
