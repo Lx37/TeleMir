@@ -44,10 +44,12 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
         self.colorMode=colorMode
         
         #window option
-        self.setWindowTitle('')
+        numscreen = 6
+        self.setWindowTitle('Spectre')
         #self.resize(1014, 750)
         self.resize(800, 600)
-        self.move(1920, 0)
+        #~ self.move(1920, 0)
+        self.move(1920 + (numscreen-1) * 800 ,200)
         self.setWindowFlags(QtCore.Qt.CustomizeWindowHint)
         self.show()
         
@@ -214,3 +216,6 @@ class freqBandsGraphics(pw.PyQtGraphicsWorker):
         elif e.key()==pg.QtCore.Qt.Key_Space:
             self.adaptRange()
 
+    def close(self):
+        self.close()
+    

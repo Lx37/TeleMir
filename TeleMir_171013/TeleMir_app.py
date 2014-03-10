@@ -157,6 +157,8 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.btn_2.setEnabled(False)
         self.btn_3.setEnabled(True)
         
+        self.TV = TeleMir_Vol()
+        
         ## Close Calibration phase
         self.TC.close()
         self.vp1.close()
@@ -166,11 +168,6 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.vp5.close()
         self.vp6.close()
         self.vp7.close()
-        
-        self.TV = TeleMir_Vol()
-        
-        self.TV.w_oscilo.resize(300,300)
-        
         
         
         

@@ -161,16 +161,6 @@ class TeleMirMainWindow(QtGui.QWidget):
         self.btn_2.setEnabled(False)
         self.btn_3.setEnabled(True)
         
-        ## Close Calibration phase
-        self.TC.close()
-        self.vp1.close()
-        self.vp2.close()
-        self.vp3.close()
-        self.vp4.close()
-        self.vp5.close()
-        self.vp6.close()
-        self.vp7.close()
-        
         ## Open impedance stream and show views
         filename = '/home/ran/Projets/EEG_recordings/anneLise/Emotiv Systems Pty Ltd #SN200709276578910.raw'
         filenameImp = '/home/ran/Projets/EEG_recordings/anneLise/Emotiv Systems Pty Ltd #SN200709276578911.raw'
@@ -182,7 +172,17 @@ class TeleMirMainWindow(QtGui.QWidget):
         
         self.TV = Fake_TeleMir_Vol(precomputed = precomputed,precomputedXY = precomputedXY )
         
-        self.TV.w_oscilo.resize(300,300)
+        ## Close Calibration phase
+        self.TC.close()
+        self.vp1.close()
+        self.vp2.close()
+        self.vp3.close()
+        self.vp4.close()
+        self.vp5.close()
+        self.vp6.close()
+        self.vp7.close()
+        
+        #~ self.TV.w_oscilo.resize(300,300)
         #self.TV.w_oscilo.setWindowOpacity(0.5)
         
         #~ text1 = pg.TextItem("test1", anchor=(1, 1))

@@ -246,17 +246,19 @@ class GetFeatures():
             crisp_feat = 0
         else:
             if total_power < 3000:
-                crisp_feat = 1
+                crisp_feat = 20
             else:
                 if total_power < 4000:
-                    crisp_feat = 2
+                    crisp_feat = 40
                 else:
                     if total_power < 5000:
-                        crisp_feat = 3
+                        crisp_feat = 60
                     else:
-                        crisp_feat = 4
-                        
-
+                        if total_power < 6000:
+                            crisp_feat = 80
+                        else:
+                            crisp_feat = 100
+    
         if contrib_alpha_smooth_norm>6:
             blink_feat =0
         
@@ -304,7 +306,7 @@ class GetFeatures():
         
         
         if np.mean(blink_comp) > self.blink_threshold and self.lastBlink < self.blink_threshold:
-            isBlink = 1
+            isBlink = 10
         else:
             isBlink = 0
         

@@ -80,7 +80,7 @@ class Topoplot_imp(QtGui.QWidget):
         #~ self.resize(1200, 1768)
         #~ self.move(7034, 0)
         self.resize(800, 600)
-        self.move(0, 0)
+        self.move(700, 200)
    
      
         # Set the sensor names
